@@ -13,8 +13,8 @@
 - Get exciting offers
 - Buy premium membership. Premium members can get more facilities than a regular user (like borrowing books without payment)
 
-![proposal_demo1.png](doc/images/proposal_demo1.png)
-![proposal_demo2.png](doc/images/proposal_demo2.png)
+![proposal_demo1.png](images/proposal_demo1.png)
+![proposal_demo2.png](images/proposal_demo2.png)
 <p align="center"> Fig: A Demo UI of BookKeep <br>
   Reference: <a href="https://www.rokomari.com/book">https://www.rokomari.com/book</a>
 </p>
