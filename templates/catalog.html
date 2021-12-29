@@ -1,7 +1,51 @@
-{% extends 'base.html' %}
+{% extends 'base_with_navbar_and_offcanvas.html' %}
 
 {% block content %}
+<style>
+.card:hover{
+    box-shadow: blue;
+    transform:scale(1.05);
+}
 
-<h1 class="container">Hello World!</h1>
+.card{
+  transition:.3s;
+}
+</style>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-2 px-1 position-fixed" style="background-color: #cccccc;" id="sticky-sidebar">
+            <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2">
+                <p>for filter and stuff</p>
+            </div>
+        </div>
+        <div class="col-10 offset-2" id="main">
+          <div class="container-fluid mt-4">
+            <div class="row" style="margin-left: 60px !important;">
+
+              {% for book in books %}
+
+              <div class="col-auto">
+                <div class="card mb-4 shadow" style="width: 18rem;">
+                  <img src="https://via.placeholder.com/256x310.png?text=Placeholder" class="card-img-top" alt="Placeholder">
+                  <div class="card-body">
+                    <h5 class="card-title test-truncate">Book Name</h5>
+                    <p class="card-text">Author Name</p>
+                    <a href="#" class="stretched-link"></a><!-- replace with link to book info page -->
+                  </div>
+
+                </div>
+
+              </div>
+              {% endfor %}
+
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+
 
 {% endblock %}
