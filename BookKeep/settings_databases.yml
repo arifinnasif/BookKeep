@@ -1,7 +1,7 @@
 default:
   ENGINE: 'django.db.backends.oracle'
   # NAME: 'ORCL'
-  NAME: 'localhost:1521/orclpdb1.localdomain'
+  NAME: 'localhost:1521/orclpdb' # 'localhost:1521/orclpdb1.localdomain'
   USER: 'BOOKKEEPER'
   PASSWORD: '1234'
   # HOST: 'localhost'
