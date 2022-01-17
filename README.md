@@ -13,3 +13,11 @@ L-2 T-2 Database Project
     ```
     python manage.py collectstatic
     ```
+3. Install cx\_Oracle
+	```
+	python -m pip install cx_Oracle
+	```
+4. If oracle is not locally installed. Download oracle instant client and run
+	```
+	export LD_LIBRARY_PATH=/path/to/instantclient_directory/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
+	```
