@@ -11,8 +11,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
 from pathlib import Path
-
 import os
+import yaml
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -74,19 +74,14 @@ WSGI_APPLICATION = 'BookKeep.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+dct = {}
+with open(os.path.join(BASE_DIR,"BookKeep","settings_databases.yml"), "r") as stream:
+    try:
+        dct = yaml.safe_load(stream)
+    except yaml.YAMLError as exc:
+        print(exc)
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.oracle',
-#        'NAME': 'ORCL',
-        'NAME': 'localhost:1521/orclpdb1.localdomain',
-        'USER': 'BOOKKEEPER',
-        'PASSWORD': '1234',
-        #'HOST': 'localhost',
-        #'PORT': '1521',
-    }
-}
-
+DATABASES = dct
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
