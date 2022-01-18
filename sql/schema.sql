@@ -45,7 +45,11 @@ CREATE TABLE BOOKS (
 
 CREATE TABLE BOOK_TYPE (
 	ISBN			VARCHAR2(16),
+<<<<<<< HEAD
 	B_TYPE			VARCHAR2(32),	/* changed from 16 to 32 to accomodate large genre names */
+=======
+	B_TYPE			VARCHAR2(64),
+>>>>>>> 84e8f6d (Schema updated)
 
 	PRIMARY KEY (ISBN, B_TYPE)
 );
