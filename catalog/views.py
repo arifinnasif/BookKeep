@@ -16,6 +16,8 @@ def show_homepage(request):
     result = cursor.fetchall()
     cursor.close()
 
+
+
     books = []
 
     for r in result:
@@ -23,7 +25,22 @@ def show_homepage(request):
 
     random.shuffle(books)
 
+
+    userfullname = None
+    if request.session.get('usertype') == 'customer':
+        cursor = connection.cursor()
+        sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+        cursor.execute(sql, [request.session.get('username', default='guest')])
+        result = cursor.fetchall()
+        cursor.close()
+        userfullname = result[0][0]
+
+    usertype = request.session.get('usertype', default='guest')
+
     context = {
+        "userfullname" : userfullname,
+        "usertype" : usertype,
         "books" : books,
     }
+
     return render(request, 'catalog.html', context)

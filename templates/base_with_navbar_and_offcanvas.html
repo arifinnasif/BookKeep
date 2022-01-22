@@ -41,11 +41,21 @@
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
   <div class="offcanvas-header">
-    <h5 id="offcanvasRightLabel">login and profile links goes here</h5>
+    {% if usertype == 'customer' %}
+      <h5 id="offcanvasRightLabel">Welcome! {{userfullname}}</h5>
+    {% else %}
+      <h5 id="offcanvasRightLabel">login and profile links goes here</h5>
+    {% endif %}
+
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    ...
+    {% if usertype == 'customer' %}
+      <a href="logout/">Log out</a>
+    {% else %}
+      <a href="login/">Sign in</a>
+      ....
+    {% endif %}
   </div>
 </div>
 
