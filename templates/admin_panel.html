@@ -1,9 +1,9 @@
-{% extends "base_with_navbar_and_offcanvas.html" %}
+{% extends "base.html" %}
+{% load static %}
 
-{% block content %}
+{% block base_content %}
 
 <!-- Bootstrap core CSS -->
-<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <style>
     .bd-placeholder-img {
@@ -19,10 +19,46 @@
             font-size: 3.5rem;
         }
     }
+
+    .nav>li>a:hover {
+      background-color: #0c0c0c;
+    }
 </style>
 
-<div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px; height: 100vh;">
-    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+<nav class="navbar navbar-expand-lg sticky-top navbar-dark" style="background-color: #000000;">
+  <div class="container-fluid">
+
+
+    <a class="navbar-brand" href="#">
+      <img src="{% static 'logo.svg' %}" alt="" width="200">
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <!-- <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <form class="container">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search" aria-label="Search" aria-describedby="button-addon2">
+          <button class="btn btn-outline-secondary" type="button" id="button-addon2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+              <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+            </svg>
+          </button>
+        </div>
+      </form>
+
+<!-- <button class="btn me-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-grid-3x3-gap-fill" viewBox="0 0 16 16">
+  <path d="M1 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V2zM1 7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V7zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1V7zM1 12a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1v-2zm5 0a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-2z"/>
+</svg>
+</button>
+    </div> -->
+  </div>
+</nav>
+
+<div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px; top: 60px; bottom: 0px; position: fixed;">
+    <a href="/manage/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
         <svg class="bi me-2" width="40" height="32">
             <use xlink:href="#bootstrap" />
         </svg>
@@ -31,7 +67,7 @@
     <hr>
     <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-            <a href="#" class="nav-link active" aria-current="page">
+            <a id="customer-list" href="#" class="nav-link text-white" aria-current="page">
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#home" />
                 </svg>
@@ -39,7 +75,7 @@
             </a>
         </li>
         <li>
-            <a href="#" class="nav-link text-white">
+            <a id="book-list" href="#" class="nav-link text-white">
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#speedometer2" />
                 </svg>
@@ -47,7 +83,7 @@
             </a>
         </li>
         <li>
-            <a href="#" class="nav-link text-white">
+            <a id="order-log" href="#" class="nav-link text-white">
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#table" />
                 </svg>
@@ -55,7 +91,7 @@
             </a>
         </li>
         <li>
-            <a href="#" class="nav-link text-white">
+            <a id="borrow-rquests" href="#" class="nav-link text-white">
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#grid" />
                 </svg>
@@ -63,7 +99,7 @@
             </a>
         </li>
         <li>
-            <a href="#" class="nav-link text-white">
+            <a id="offers" href="#" class="nav-link text-white">
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#people-circle" />
                 </svg>
@@ -71,23 +107,31 @@
             </a>
         </li>
         <li>
-            <a href="#" class="nav-link text-white">
+            <a id="plans" href="#" class="nav-link text-white">
                 <svg class="bi me-2" width="16" height="16">
                     <use xlink:href="#people-circle" />
                 </svg>
                 Plans
             </a>
         </li>
-        <li>
-            <a href="#" class="nav-link text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#people-circle" />
-                </svg>
-                Logout
-            </a>
-        </li>
     </ul>
     <hr>
+    <a href="#" class="nav-link bg-danger rounded text-center text-white">
+        <!-- <svg class="bi me-2" width="16" height="16">
+            <use xlink:href="#people-circle" />
+        </svg> -->
+        Logout
+    </a>
 </div>
 
-{% endblock %}
+    <script type="text/javascript">
+      $(document).ready(function(){
+        $("#sidebar>ul.nav>li>a").on("click", function(event) {
+          $(".nav>li>a").removeClass("active");
+          $("#"+$(event.target).attr("id")).addClass("active");
+        });
+      });
+
+    </script>
+
+    {% endblock %}
