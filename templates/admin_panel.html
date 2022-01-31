@@ -83,7 +83,7 @@
           </a>
         </li>
         <li>
-          <a id="book-list" href="#" class="nav-link text-white">
+          <a id="book-list" href="#" class="nav-link text-white {% block book-list-anchor-class %}{% endblock %}">
             <svg class="bi me-2" width="16" height="16">
               <use xlink:href="#speedometer2" />
             </svg>
@@ -99,7 +99,7 @@
           </a>
         </li>
         <li>
-          <a id="borrow-rquests" href="#" class="nav-link text-white">
+          <a id="borrow-requests" href="#" class="nav-link text-white">
             <svg class="bi me-2" width="16" height="16">
               <use xlink:href="#grid" />
             </svg>
@@ -135,7 +135,7 @@
     <!-- </div> -->
     <div class="col-10 offset-2" id="main">
       <div class="container-fluid mt-4">
-        {% block customer-list-block %}
+        {% block admin-content-block %}
 
         {% endblock %}
       </div>
