@@ -1,0 +1,42 @@
+{% extends "admin_panel.html" %}
+
+ {% block book-list-anchor-class %}active{% endblock %}
+
+{% block admin-content-block %}
+<h3>Book List</h3>
+<table class="table table-striped table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">ISBN</th>
+      <th scope="col">Name</th>
+      <th scope="col">Author</th>
+      <th scope="col">Edition</th>
+      <th scope="col">Released On</th>
+      <th scope="col">Price</th>
+      <th scope="col">Page</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Publisher</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in bookInfo %}
+    <tr>
+      <th scope="row">{{row.ISBN}}</th>
+      <td>{{row.bookName}}</td>
+      <td>{{row.authorName}}</td>
+      <td>{{row.edition}}</td>
+      <td>{{row.releaseDate}}</td>
+      <td>৳{{row.price}}</td>
+      <td>{{row.pageCount}}</td>
+      <td>{{row.quantity}}</td>
+      <td>{{row.publisherName}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- <script type="text/javascript">
+  $("#customer-list").addClass("active");
+
+</script> -->
+{% endblock %}
