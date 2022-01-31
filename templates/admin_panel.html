@@ -6,23 +6,23 @@
 <!-- Bootstrap core CSS -->
 
 <style>
-    .bd-placeholder-img {
-        font-size: 1.125rem;
-        text-anchor: middle;
-        -webkit-user-select: none;
-        -moz-user-select: none;
-        user-select: none;
-    }
+  .bd-placeholder-img {
+    font-size: 1.125rem;
+    text-anchor: middle;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    user-select: none;
+  }
 
-    @media (min-width: 768px) {
-        .bd-placeholder-img-lg {
-            font-size: 3.5rem;
-        }
+  @media (min-width: 768px) {
+    .bd-placeholder-img-lg {
+      font-size: 3.5rem;
     }
+  }
 
-    .nav>li>a:hover {
-      background-color: #0c0c0c;
-    }
+  .nav>li>a:hover {
+    background-color: #0c0c0c;
+  }
 </style>
 
 <nav class="navbar navbar-expand-lg sticky-top navbar-dark" style="background-color: #000000;">
@@ -57,81 +57,99 @@
   </div>
 </nav>
 
-<div id="sidebar" class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px; top: 60px; bottom: 0px; position: fixed;">
-    <a href="/manage/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+
+
+
+
+<div class="container-fluid">
+  <div class="row">
+    <!-- <div class="col-2 px-1 position-fixed" style="background-color: #cccccc;" id="sticky-sidebar"> -->
+    <!-- <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2"> -->
+    <div id="sidebar" class="col-2 position-fixed d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px; top: 60px; bottom: 0px; position: fixed;">
+      <a href="/manage/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
         <svg class="bi me-2" width="40" height="32">
-            <use xlink:href="#bootstrap" />
+          <use xlink:href="#bootstrap" />
         </svg>
         <span class="fs-4">Manager Panel</span>
-    </a>
-    <hr>
-    <ul class="nav nav-pills flex-column mb-auto">
+      </a>
+      <hr>
+      <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-            <a id="customer-list" href="#" class="nav-link text-white" aria-current="page">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#home" />
-                </svg>
-                Customer List
-            </a>
+          <a id="customer-list" href="/manage/customer-list/" class="nav-link text-white {% block customer-list-anchor-class %}{% endblock %}" aria-current="page">
+            <svg class="bi me-2" width="16" height="16">
+              <use xlink:href="#home" />
+            </svg>
+            Customer List
+          </a>
         </li>
         <li>
-            <a id="book-list" href="#" class="nav-link text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#speedometer2" />
-                </svg>
-                Book List
-            </a>
+          <a id="book-list" href="#" class="nav-link text-white">
+            <svg class="bi me-2" width="16" height="16">
+              <use xlink:href="#speedometer2" />
+            </svg>
+            Book List
+          </a>
         </li>
         <li>
-            <a id="order-log" href="#" class="nav-link text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#table" />
-                </svg>
-                Order Log
-            </a>
+          <a id="order-log" href="#" class="nav-link text-white">
+            <svg class="bi me-2" width="16" height="16">
+              <use xlink:href="#table" />
+            </svg>
+            Order Log
+          </a>
         </li>
         <li>
-            <a id="borrow-rquests" href="#" class="nav-link text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#grid" />
-                </svg>
-                Borrow Requests
-            </a>
+          <a id="borrow-rquests" href="#" class="nav-link text-white">
+            <svg class="bi me-2" width="16" height="16">
+              <use xlink:href="#grid" />
+            </svg>
+            Borrow Requests
+          </a>
         </li>
         <li>
-            <a id="offers" href="#" class="nav-link text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#people-circle" />
-                </svg>
-                Sales and Offers
-            </a>
+          <a id="offers" href="#" class="nav-link text-white">
+            <svg class="bi me-2" width="16" height="16">
+              <use xlink:href="#people-circle" />
+            </svg>
+            Sales and Offers
+          </a>
         </li>
         <li>
-            <a id="plans" href="#" class="nav-link text-white">
-                <svg class="bi me-2" width="16" height="16">
-                    <use xlink:href="#people-circle" />
-                </svg>
-                Plans
-            </a>
+          <a id="plans" href="#" class="nav-link text-white">
+            <svg class="bi me-2" width="16" height="16">
+              <use xlink:href="#people-circle" />
+            </svg>
+            Plans
+          </a>
         </li>
-    </ul>
-    <hr>
-    <a href="#" class="nav-link bg-danger rounded text-center text-white">
+      </ul>
+      <hr>
+      <a href="#" class="nav-link bg-danger rounded text-center text-white">
         <!-- <svg class="bi me-2" width="16" height="16">
-            <use xlink:href="#people-circle" />
-        </svg> -->
+                          <use xlink:href="#people-circle" />
+                      </svg> -->
         Logout
-    </a>
+      </a>
+    </div>
+    <!-- </div> -->
+    <!-- </div> -->
+    <div class="col-10 offset-2" id="main">
+      <div class="container-fluid mt-4">
+        {% block customer-list-block %}
+
+        {% endblock %}
+      </div>
+    </div>
+  </div>
 </div>
 
-    <script type="text/javascript">
-      $(document).ready(function(){
-        $("#sidebar>ul.nav>li>a").on("click", function(event) {
-          $(".nav>li>a").removeClass("active");
-          $("#"+$(event.target).attr("id")).addClass("active");
-        });
-      });
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#sidebar>ul.nav>li>a").on("click", function(event) {
+      $(".nav>li>a").removeClass("active");
+      $("#" + $(event.target).attr("id")).addClass("active");
+    });
+  });
+</script>
 
-    </script>
-
-    {% endblock %}
+{% endblock %}
