@@ -2,48 +2,48 @@
 
 {% block content %}
 <style>
-.card:hover{
+  .card:hover {
     box-shadow: blue;
-    transform:scale(1.05);
-}
+    transform: scale(1.05);
+  }
 
-.card{
-  transition:.3s;
-}
+  .card {
+    transition: .3s;
+  }
 </style>
 
 
 <div class="container-fluid">
-    <div class="row">
-        <div class="col-2 px-1 position-fixed" style="background-color: #cccccc;" id="sticky-sidebar">
-            <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2">
-              <p>for filter and stuff</p>
-            </div>
-        </div>
-        <div class="col-10 offset-2" id="main">
-          <div class="container-fluid mt-4">
-            <div class="row" style="margin-left: 60px !important;">
+  <div class="row">
+    <div class="col-2 px-1 position-fixed" style="background-color: #cccccc;" id="sticky-sidebar">
+      <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2">
+        <p>for filter and stuff</p>
+      </div>
+    </div>
+    <div class="col-10 offset-2" id="main">
+      <div class="container-fluid mt-4">
+        <div class="row" style="margin-left: 60px !important;">
 
-              {% for book in books %}
+          {% for book in books %}
 
-              <div class="col-auto">
-                <div class="card mb-4 shadow" style="width: 18rem;">
-                  <img src="https://via.placeholder.com/256x310.png?text=Placeholder" class="card-img-top" alt="Placeholder">
-                  <div class="card-body">
-                    <h5 class="card-title text-truncate">{{book.bookName}}</h5>
-                    <p class="card-text text-truncate">{{book.authorName}}</p>
-                    <a href="#" class="stretched-link"></a><!-- replace with link to book info page -->
-                  </div>
-
-                </div>
-
+          <div class="col-auto">
+            <div class="card mb-4 shadow" style="width: 18rem;">
+              <img src="https://via.placeholder.com/256x310.png?text=Placeholder" class="card-img-top"
+                alt="Placeholder">
+              <div class="card-body">
+                <h5 class="card-title text-truncate">{{book.bookName}}</h5>
+                <p class="card-text text-truncate">{{book.authorName}}</p>
+                <!-- replace with link to book info page -->
+                <a href="books/{{book.isbn}}" class="stretched-link"></a>
               </div>
-              {% endfor %}
-
             </div>
           </div>
+          {% endfor %}
+
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 
