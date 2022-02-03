@@ -137,25 +137,49 @@ class AdminBookListView(View):
             return redirect('admin-book-list-view')
         uploaded_pic    = request.FILES.get('coverPic')
 
-        if post_type == "edit":
-            if len(bookName) > 63:
-                messages.error(request, 'Name should be less than 64 characters')
-                return redirect('admin-book-list-view')
-            elif price <= 0:
-                messages.error(request, 'Price should be a positive value')
-                return redirect('admin-book-list-view')
-            elif pageCount <= 0:
-                messages.error(request, 'Page count should be a positive value')
-                return redirect('admin-book-list-view')
-            elif quantity < 0:
-                messages.error(request, 'Quantity should be a non-negative value')
-                return redirect('admin-book-list-view')
+        if len(isbn) == 0:
+            messages.error(request, 'ISBN cannot be blank')
+            return redirect('admin-book-list-view')
+        elif len(bookName) > 63:
+            messages.error(request, 'Name should be less than 64 characters')
+            return redirect('admin-book-list-view')
+        elif len(bookName) == 0:
+            messages.error(request, 'Name cannot be blank')
+            return redirect('admin-book-list-view')
+        elif price <= 0:
+            messages.error(request, 'Price should be a positive value')
+            return redirect('admin-book-list-view')
+        elif pageCount <= 0:
+            messages.error(request, 'Page count should be a positive value')
+            return redirect('admin-book-list-view')
+        elif quantity < 0:
+            messages.error(request, 'Quantity should be a non-negative value')
+            return redirect('admin-book-list-view')
 
+        if post_type == "edit":
             cursor = connection.cursor()
             cursor.callproc("UPDATE_BOOK_INFO",
                                 [isbn, bookName, authorID, edition, releaseDate, price, pageCount, quantity, publisherID,])
             cursor.close()
             messages.success(request, 'Successfully updated')
+        elif post_type == "add":
+            cursor = connection.cursor()
+            sql = """SELECT COUNT(*)
+                    FROM BOOKS WHERE ISBN=%s"""
+            cursor.execute(sql, [isbn])
+            cnt = cursor.fetchall()
+            cursor.close()
+            if int(cnt[0][0]) > 0:
+                messages.error(request, 'Book with the same ISBN already exists in the table')
+                return redirect('admin-book-list-view')
+            cursor = connection.cursor()
+            print(isbn)
+            print("dakr side")
+            print(edition)
+            cursor.callproc("INSERT_BOOK_INFO",
+                                [isbn, bookName, authorID, edition, releaseDate, price, pageCount, quantity, publisherID,])
+            cursor.close()
+            messages.success(request, 'Successfully added')
 
         if uploaded_pic is not None:
             uploaded_pic_ext = uploaded_pic.name.split('.')[-1]
