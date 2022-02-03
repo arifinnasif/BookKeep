@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.db import connection
 from django.views import View
 from BookKeep.settings import BASE_DIR
+from django.contrib import messages
 import datetime
 import os
 
@@ -126,17 +127,35 @@ class AdminBookListView(View):
         authorID        = request.POST.get("authorID")
         edition         = request.POST.get("edition")
         releaseDate     = datetime.datetime.strptime(request.POST.get("releaseDate"), '%Y-%m-%d')
-        price           = request.POST.get("price")
-        pageCount       = request.POST.get("pageCount")
-        quantity        = request.POST.get("quantity")
-        publisherID     = request.POST.get("publisherID")
+        try:
+            price           = float(request.POST.get("price"))
+            pageCount       = int(request.POST.get("pageCount"))
+            quantity        = int(request.POST.get("quantity"))
+            publisherID     = int(request.POST.get("publisherID"))
+        except ValueError:
+            messages.error(request, 'Something went wrong')
+            return redirect('admin-book-list-view')
         uploaded_pic    = request.FILES.get('coverPic')
 
         if post_type == "edit":
+            if len(bookName) > 63:
+                messages.error(request, 'Name should be less than 64 characters')
+                return redirect('admin-book-list-view')
+            elif price <= 0:
+                messages.error(request, 'Price should be a positive value')
+                return redirect('admin-book-list-view')
+            elif pageCount <= 0:
+                messages.error(request, 'Page count should be a positive value')
+                return redirect('admin-book-list-view')
+            elif quantity < 0:
+                messages.error(request, 'Quantity should be a non-negative value')
+                return redirect('admin-book-list-view')
+
             cursor = connection.cursor()
             cursor.callproc("UPDATE_BOOK_INFO",
                                 [isbn, bookName, authorID, edition, releaseDate, price, pageCount, quantity, publisherID,])
             cursor.close()
+            messages.success(request, 'Successfully updated')
 
         if uploaded_pic is not None:
             uploaded_pic_ext = uploaded_pic.name.split('.')[-1]
