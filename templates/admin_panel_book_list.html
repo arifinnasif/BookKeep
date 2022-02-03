@@ -1,6 +1,6 @@
 {% extends "admin_panel.html" %}
 
- {% block book-list-anchor-class %}active{% endblock %}
+{% block book-list-anchor-class %}active{% endblock %}
 
 {% block admin-content-block %}
 <h3>Book List</h3>
@@ -16,20 +16,31 @@
       <th scope="col">Page</th>
       <th scope="col">Quantity</th>
       <th scope="col">Publisher</th>
+      <th scope="col" class="d-none">Author ID</th>
+      <th scope="col" class="d-none">Publisher ID</th>
+      <th scope="col"></th>
     </tr>
   </thead>
   <tbody>
     {% for row in bookInfo %}
-    <tr>
-      <th scope="row">{{row.ISBN}}</th>
-      <td>{{row.bookName}}</td>
-      <td>{{row.authorName}}</td>
-      <td>{{row.edition}}</td>
-      <td>{{row.releaseDate}}</td>
-      <td>৳{{row.price}}</td>
-      <td>{{row.pageCount}}</td>
-      <td>{{row.quantity}}</td>
-      <td>{{row.publisherName}}</td>
+    <tr id="ISBN-{{row.ISBN}}">
+      <th scope="row" class="my-ISBN">{{row.ISBN}}</th>
+      <td class="my-bookName">{{row.bookName}}</td>
+      <td class="my-authorName">{{row.authorName}}</td>
+      <td class="my-edition">{{row.edition}}</td>
+      <td class="my-releaseDate">{{row.releaseDate}}</td>
+      <td class="my-price"><span>৳</span>{{row.price}}</td>
+      <td class="my-pageCount">{{row.pageCount}}</td>
+      <td class="my-quantity">{{row.quantity}}</td>
+      <td class="my-publisherName">{{row.publisherName}}</td>
+      <td class="my-authorID d-none">{{row.authorID}}</td>
+      <td class="my-publisherID d-none">{{row.publisherID}}</td>
+      <td>
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary my-edit-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+          Edit
+        </button>
+      </td>
     </tr>
     {% endfor %}
   </tbody>
@@ -39,4 +50,140 @@
   $("#customer-list").addClass("active");
 
 </script> -->
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel">Edit Book Info</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="editBookForm" action="{% url 'admin-book-list-view' %}" method='post' enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="post_type" value="edit" />
+          <div class="mb-3">
+            <label for="modal-ISBN" class="form-label">ISBN</label>
+            <input type="text" class="form-control" id="modal-ISBN" name="ISBN" value="My ISBN" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="modal-bookName" class="form-label">Book Name</label>
+            <input type="text" class="form-control" id="modal-bookName" name="bookName" value="My Book">
+          </div>
+          <div class="mb-3">
+            <label for="modal-authorName" class="form-label">Author</label>
+            <select class="form-select" name="authorID" id="modal-authorName">
+              {% for author in authorList %}
+              <option value="{{author.0}}">{{author.1}}</option>
+
+              {% endfor %}
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="modal-edition" class="form-label">Edition</label>
+            <input type="text" class="form-control" name="edition" id="modal-edition" value="My Edition">
+          </div>
+          <div class="mb-3">
+            <label for="modal-releaseDate" class="form-label">Release Date</label>
+            <input placeholder="Selected date" value="2001-01-01" name="releaseDate" id="modal-releaseDate" type="date" class="form-control datepicker">
+
+          </div>
+          <div class="mb-3">
+            <label for="modal-price" class="form-label">Price</label>
+            <div class="input-group">
+              <span class="input-group-text">৳</span>
+              <input type="text" class="form-control" name="price" id="modal-price" value="10">
+
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="modal-pageCount" class="form-label">Page</label>
+            <input type="text" class="form-control" name="pageCount" id="modal-pageCount" value="20">
+          </div>
+
+          <div class="mb-3">
+            <label for="modal-quantity" class="form-label">Quantity</label>
+            <input type="text" class="form-control" name="quantity" id="modal-quantity" value="5">
+          </div>
+
+          <div class="mb-3">
+            <label for="modal-publisherName" class="form-label">Publisher</label>
+            <select class="form-select" name="publisherID" id="modal-publisherName">
+              {% for publisher in publisherList %}
+              <option value="{{publisher.0}}">{{publisher.1}}</option>
+
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label for="coverPic" class="form-label">Upload New Cover</label>
+            <input class="form-control" name="coverPic" type="file" id="coverPic">
+          </div>
+
+
+
+          <div class="mb-3">
+            <label for="bookType">Book Type</label>
+            <div id="bookType" class="form-check">
+              <input class="form-check-input" type="checkbox" name="test1" value="val1" id="flexCheckDefault">
+              <label class="form-check-label" for="flexCheckDefault">
+                Default checkbox
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="val2" id="flexCheckChecked" checked>
+              <label class="form-check-label" for="flexCheckChecked">
+                Checked checkbox
+              </label>
+            </div>
+
+          </div>
+
+
+          <!-- <button type="submit" class="btn btn-primary">Submit</button> -->
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button submit" form="editBookForm" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    $('.my-edit-btn').click(function() {
+      var v = $(event.target).parent().siblings(".my-ISBN").text();
+      $("#modal-ISBN").val(v);
+
+      var v = $(event.target).parent().siblings(".my-bookName").text();
+      $("#modal-bookName").val(v);
+
+      var v = $(event.target).parent().siblings(".my-authorID").text();
+      $("#modal-authorName").find(`[value=${v}]`).attr("selected", "selected");
+
+      var v = $(event.target).parent().siblings(".my-edition").text();
+      $("#modal-edition").val(v);
+
+      var v = $(event.target).parent().siblings(".my-releaseDate").text();
+      $("#modal-releaseDate").val(v);
+
+      var v = $(event.target).parent().siblings(".my-price").text();
+      $("#modal-price").val(v.substring(1));
+
+      var v = $(event.target).parent().siblings(".my-pageCount").text();
+      $("#modal-pageCount").val(v);
+
+      var v = $(event.target).parent().siblings(".my-quantity").text();
+      $("#modal-quantity").val(v);
+
+      var v = $(event.target).parent().siblings(".my-publisherID").text();
+      $("#modal-publisherName").find(`[value=${v}]`).attr("selected", "selected");
+    });
+  });
+</script>
 {% endblock %}
