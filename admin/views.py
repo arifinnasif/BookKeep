@@ -24,13 +24,13 @@ class CustomerInfoModel:
         else:
             self.address        = row[2]
         self.email              = row[3]
-        self.accountCreatedOn   = row[4].strftime('%y-%m-%d %H:%M:%S')
+        self.accountCreatedOn   = row[4].strftime('%Y-%m-%d %H:%M:%S')
         if row[6] is None:
             self.planName       = ""
             self.membershipBoughtOn = ""
         else:
             self.planName       = row[6]
-            self.membershipBoughtOn = row[5].strftime('%y-%m-%d %H:%M:%S')
+            self.membershipBoughtOn = row[5].strftime('%Y-%m-%d %H:%M:%S')
 
 
 
@@ -326,3 +326,76 @@ class AdminAuthorListView(View):
             author_pic.close()
 
         return redirect('admin-author-list-view')
+
+
+class AdminOrderLogView(View):
+    def get(self, request):
+        cursor = connection.cursor()
+        sql =   """
+                SELECT O.ORDER_ID, CUSTOMER_ID, C.NAME, C.ADDRESS, O.ORDERING_DATE, O.DELIVERY_DATE, (SELECT SUM(OB.UNIT_PRICE*OB.QUANTITY) FROM ORDER_BOOK OB WHERE OB.ORDER_ID = O.ORDER_ID)
+                FROM ORDERS O
+                LEFT OUTER JOIN CUSTOMERS C USING (CUSTOMER_ID)
+                ORDER BY O.DELIVERY_DATE DESC, O.ORDERING_DATE DESC
+                """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        pending_orders = []
+        completed_orders = []
+
+        for r in result:
+            cursor = connection.cursor()
+            sql =   """
+                    SELECT B.NAME, OB.QUANTITY
+                    FROM ORDER_BOOK OB
+                    LEFT OUTER JOIN BOOKS B USING(ISBN)
+                    WHERE OB.ORDER_ID = %s
+                    """
+            cursor.execute(sql,[int(r[0])])
+            result2 = cursor.fetchall()
+            cursor.close()
+            items = []
+
+            for r2 in result2:
+                items.append({
+                    'bookName' : r2[0],
+                    'quantity' : r2[1],
+                })
+
+            if r[5] is None:
+                pending_orders.append({
+                    'orderID' : r[0],
+                    'customerID' : r[1],
+                    'customerName' : r[2],
+                    'address' : r[3],
+                    'orderingDate' : r[4].strftime('%Y-%m-%d %H:%M:%S'),
+                    'items' : items,
+                    'charge' : r[6],
+                })
+            else:
+                completed_orders.append({
+                    'orderID' : r[0],
+                    'customerID' : r[1],
+                    'customerName' : r[2],
+                    'address' : r[3],
+                    'orderingDate' : r[4].strftime('%Y-%m-%d %H:%M:%S'),
+                    'deliveryDate' : r[5].strftime('%Y-%m-%d %H:%M:%S'),
+                    'items' : items,
+                    'charge' : r[6],
+                })
+
+        context = {
+            "pending_orders" : pending_orders,
+            "completed_orders" : completed_orders,
+        }
+        return render(request, 'admin_panel_order_log.html', context)
+
+    def post(self, request):
+        cursor = connection.cursor()
+        sql =   """
+                UPDATE ORDERS SET DELIVERY_DATE = %s WHERE ORDER_ID = %s
+                """
+        cursor.execute(sql,[datetime.datetime.now(), request.POST.get('orderID')])
+        cursor.close()
+        return redirect('admin-order-log-view')
