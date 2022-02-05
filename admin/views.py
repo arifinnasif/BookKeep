@@ -124,10 +124,13 @@ class AdminBookListView(View):
         post_type       = request.POST.get("post_type")
         isbn            = request.POST.get("ISBN")
         bookName        = request.POST.get("bookName")
-        authorID        = request.POST.get("authorID")
         edition         = request.POST.get("edition")
         releaseDate     = datetime.datetime.strptime(request.POST.get("releaseDate"), '%Y-%m-%d')
         try:
+            if request.POST.get("authorID") is None or len(request.POST.get("authorID")) == 0:
+                messages.error('Provide an Author Name')
+                return redirect('admin-book-list-view')
+            authorID        = int(request.POST.get("authorID"))
             price           = float(request.POST.get("price"))
             pageCount       = int(request.POST.get("pageCount"))
             quantity        = int(request.POST.get("quantity"))
@@ -191,3 +194,122 @@ class AdminBookListView(View):
 
         #print(request.POST.get("test1"))
         return redirect('admin-book-list-view')
+
+
+class AdminAuthorListView(View):
+    def get(self, request):
+        cursor = connection.cursor()
+        sql =   """
+                SELECT A.NAME, A.DOB, A.DOD, A.ABOUT, (SELECT COUNT(*) FROM WRITES W WHERE W.AUTHOR_ID = A.AUTHOR_ID), AUTHOR_ID
+                FROM AUTHORS A
+                """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        authorInfo = []
+        for r in result:
+            authorInfo.append({
+                "authorName" : r[0],
+                "DOB" : r[1].strftime('%Y-%m-%d') if r[1] is not None else "-",
+                "DOD" : r[2].strftime('%Y-%m-%d') if r[2] is not None else "-",
+                "about" : r[3] if r[2] is not None else "-",
+                "cnt_books" : r[4],
+                "authorID" : r[5],
+            })
+
+
+
+
+
+        context = {
+            "authorInfo" : authorInfo,
+        }
+
+        return render(request, 'admin_panel_author_list.html', context)
+
+    def post(self, request):
+        # print(request.POST.get("post_type"))
+        post_type = request.POST.get("post_type")
+
+        if post_type == "delete":
+            authorID = request.POST.get("authorID")
+
+            try:
+                authorID = int(authorID)
+            except ValueError:
+                messages.error(request, 'Something went wrong')
+                return redirect('admin-author-list-view')
+
+            cursor = connection.cursor()
+            print(type(authorID))
+            sql =   """
+                    SELECT COUNT(*)
+                    FROM WRITES
+                    WHERE AUTHOR_ID=%s
+                    """
+            cursor.execute(sql,[authorID])
+            result = cursor.fetchall()
+            cursor.close()
+
+            if int(result[0][0]) != 0:
+                messages.error(request, "Cannot delete an author who has some books")
+                return redirect('admin-author-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                    DELETE FROM AUTHORS WHERE AUTHOR_ID = %s
+                    """
+            cursor.execute(sql,[authorID])
+            cursor.close()
+            return redirect('admin-author-list-view')
+
+        # print(request.POST.get("authorName"))
+        # print(request.POST.get("DOB"))
+        # print(request.POST.get("DOD"))
+        # print(request.POST.get("about"))
+        authorName = request.POST.get("authorName")
+        if len(authorName) == 0:
+            messages.error(request, "Set a name for the author")
+            return redirect('admin-author-list-view')
+        DOB = request.POST.get("DOB")
+        DOD = request.POST.get("DOD")
+        about = request.POST.get("about")
+        if post_type == "edit":
+            authorID = request.POST.get("authorID")
+
+            try:
+                authorID = int(authorID)
+            except ValueError:
+                messages.error(request, 'Something went wrong')
+                return redirect('admin-author-list-view')
+            cursor = connection.cursor()
+            sql =   """
+                    UPDATE AUTHORS
+                    SET
+                        NAME = %s ,
+                        DOB = TO_DATE(%s, 'yyyy-mm-dd') ,
+                        DOD = TO_DATE(%s, 'yyyy-mm-dd') ,
+                        ABOUT = %s
+                    WHERE
+                        AUTHOR_ID = %s
+                    """
+            cursor.execute(sql, [authorName, DOB, DOD, about, authorID])
+            cursor.close()
+            messages.success(request, "Successfully updated")
+        elif post_type == "add":
+            cursor = connection.cursor()
+            sql =   """
+                    INSERT INTO AUTHORS (
+                        NAME,
+                        DOB,
+                        DOD,
+                        ABOUT
+                        )
+                    VALUES (%s, TO_DATE(%s, 'yyyy-mm-dd'), TO_DATE(%s, 'yyyy-mm-dd'), %s)
+                    """
+            cursor.execute(sql, [authorName, DOB, DOD, about])
+            cursor.close()
+            messages.success(request, "Successfully added")
+
+        return redirect('admin-author-list-view')
