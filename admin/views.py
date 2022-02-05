@@ -176,9 +176,6 @@ class AdminBookListView(View):
                 messages.error(request, 'Book with the same ISBN already exists in the table')
                 return redirect('admin-book-list-view')
             cursor = connection.cursor()
-            print(isbn)
-            print("dakr side")
-            print(edition)
             cursor.callproc("INSERT_BOOK_INFO",
                                 [isbn, bookName, authorID, edition, releaseDate, price, pageCount, quantity, publisherID,])
             cursor.close()
@@ -231,6 +228,7 @@ class AdminAuthorListView(View):
     def post(self, request):
         # print(request.POST.get("post_type"))
         post_type = request.POST.get("post_type")
+        uploaded_pic = request.FILES.get('profileImage')
 
         if post_type == "delete":
             authorID = request.POST.get("authorID")
@@ -299,17 +297,32 @@ class AdminAuthorListView(View):
             messages.success(request, "Successfully updated")
         elif post_type == "add":
             cursor = connection.cursor()
-            sql =   """
-                    INSERT INTO AUTHORS (
-                        NAME,
-                        DOB,
-                        DOD,
-                        ABOUT
-                        )
-                    VALUES (%s, TO_DATE(%s, 'yyyy-mm-dd'), TO_DATE(%s, 'yyyy-mm-dd'), %s)
-                    """
-            cursor.execute(sql, [authorName, DOB, DOD, about])
+            # sql =   """
+            #         INSERT INTO AUTHORS (
+            #             NAME,
+            #             DOB,
+            #             DOD,
+            #             ABOUT
+            #             )
+            #         VALUES (%s, TO_DATE(%s, 'yyyy-mm-dd'), TO_DATE(%s, 'yyyy-mm-dd'), %s)
+            #         """
+            # cursor.execute(sql, [authorName, DOB, DOD, about])
+            out_var = cursor.var(int).var # ei line mela pera dise
+            #out_var = -1
+            DOB = datetime.datetime.strptime(DOB, '%Y-%m-%d') if len(DOB) != 0 else None
+            DOD = datetime.datetime.strptime(DOD, '%Y-%m-%d') if len(DOD) != 0 else None
+            cursor.callproc("INSERT_AUTHOR_INFO",[authorName, DOB, DOD, about, out_var])
+            #authorID = int(out_var.getvalue())
+
+            authorID = out_var.getvalue()
             cursor.close()
             messages.success(request, "Successfully added")
+
+        if uploaded_pic is not None:
+            uploaded_pic_ext = uploaded_pic.name.split('.')[-1]
+            author_pic = open(os.path.join(BASE_DIR, 'static', 'author_pics', str(authorID)+"."+uploaded_pic_ext), 'wb')
+            for chunk in uploaded_pic.chunks():
+                author_pic.write(chunk)
+            author_pic.close()
 
         return redirect('admin-author-list-view')
