@@ -5,12 +5,6 @@ import datetime
 
 # Create your views here.
 
-# def show_books(request, isbn):
-#     context = {
-#         "isbn": isbn
-#     }
-#     return render (request, 'book_details.html', context)
-
 
 class BookShortDetail:
     def __init__(self, entry, genre):
@@ -59,6 +53,19 @@ class AuthorDetail:
         else:
             self.about = row[3]
 
+class UserReview:
+    def __init__(self, row):
+        self.flag = True
+        self.username = row[2]
+        if row[2] is None:
+            self.flag = False
+        else:
+            self.username = row[2]
+        self.rating = row[3]
+        if row[4] is None:
+            self.review = ""
+        else:
+            self.review = row[4]
 
 
 class UserBookDetailsView(View):
@@ -98,7 +105,7 @@ class UserBookDetailsView(View):
                 g = ''.join(g)
                 genre.append(g)
 
-        print(genre)
+        # print(genre)
 
         bookLongInfo = []
         for r in result:
@@ -114,10 +121,31 @@ class UserBookDetailsView(View):
         for r in author_detail:
             authorInfo.append(AuthorDetail(r))
 
+        userfullname = None
+        if request.session.get('usertype') == 'customer':
+            cursor = connection.cursor()
+            sql = """SELECT R.ISBN, CUSTOMER_ID, C.NAME, R.RATING, R.FEEDBACK
+                    FROM CUSTOMERS C
+                    LEFT OUTER JOIN REVIEWS R USING (CUSTOMER_ID)
+                    WHERE R.ISBN = %s"""
+            cursor.execute(sql, [isbn]) # request.session.get('username', default='guest')
+            result = cursor.fetchall()
+            cursor.close()
+
+            user_feedback = []
+            for r in result:
+                user_feedback.append(UserReview(r))
+
+
+        usertype = request.session.get('usertype', default='guest')
+
         context = {
             "bookLongInfo": bookLongInfo,
             "bookShortInfo": bookShortInfo,
             "authorInfo": authorInfo,
+            "userfullname": userfullname,
+            "usertype": usertype,
+            "feedback": user_feedback,
         }
 
         return render(request, 'book_details.html', context)
