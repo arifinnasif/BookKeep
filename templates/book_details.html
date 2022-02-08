@@ -230,11 +230,47 @@
                 </div>
                 <div class="tab-pane" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
                     <div class="pt-3">
+
+                        {% for i in bookLongInfo %}
+
+                        <form method="post" class="pb-4" action="{{i.isbn}}">
+                            {% csrf_token %}
+
+                            <h3>
+                                Provide your rating!
+                            </h3>
+                            <label for="rating">Out of 5: </label>
+                            <input type="number" id="rating" name="rating" min="1" max="5" value="5">
+
+                            <h3>
+                                Leave a review!
+                            </h3>
+
+                            <div class="form-group">
+                                <textarea class="form-control" name="review" id="exampleFormControlTextarea1"
+                                    rows="3"></textarea>
+                            </div>
+
+                            <input class="btn btn-primary" type="submit" value="Submit">
+
+                        </form>
+
+                        {% endfor %}
+
+                        <header class="pb-3 mb-4 border-bottom">
+                            <a href="#" class="d-flex align-items-center text-dark text-decoration-none">
+                                <span class="fs-4">
+                                    <h1>All Ratings and Reviews</h1>
+                                </span>
+                            </a>
+                        </header>
+
+                        {% for i in feedback %}
+                        {% if i.flag %}
                         <div class="jumbotron jumbotron-fluid">
                             <div class="container">
                                 <!-- <h1 class="display-4">Fluid jumbotron</h1> -->
-                                {% for i in feedback %}
-                                {% if i.flag %}
+
 
                                 <h3>{{i.username}}</h3>
                                 <!--Didn't handle null rating-->
@@ -246,10 +282,12 @@
                                 {% endif %}
                                 {% endfor %}
                                 <p class="lead">{{i.review}}</p>
-                                {% endif %}
-                                {% endfor %}
+                                
                             </div>
                         </div>
+                        
+                        {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
             </div>
