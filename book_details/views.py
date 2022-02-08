@@ -1,15 +1,10 @@
 from django.db import connection
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 import datetime
+from django.http import HttpResponseRedirect
 
 # Create your views here.
-
-# def show_books(request, isbn):
-#     context = {
-#         "isbn": isbn
-#     }
-#     return render (request, 'book_details.html', context)
 
 
 class BookShortDetail:
@@ -59,6 +54,18 @@ class AuthorDetail:
         else:
             self.about = row[3]
 
+class UserReview:
+    def __init__(self, row):
+        self.flag = True
+        if row[0] is None:
+            self.flag = False
+        else:
+            self.username = row[0]
+        self.rating = row[3]
+        if row[4] is None:
+            self.review = ""
+        else:
+            self.review = row[4]
 
 
 class UserBookDetailsView(View):
@@ -73,6 +80,7 @@ class UserBookDetailsView(View):
         cursor.execute(sql_book, [isbn])
         result = cursor.fetchall()
 
+        
         sql_genre = """SELECT B_TYPE
                 FROM BOOKS B
                 LEFT OUTER JOIN BOOK_TYPE BT USING (ISBN)
@@ -88,7 +96,6 @@ class UserBookDetailsView(View):
         cursor.execute(sql_author, [isbn])
         author_detail = cursor.fetchall()
 
-        cursor.close()
 
         genre = []
         for g in type:
@@ -98,7 +105,7 @@ class UserBookDetailsView(View):
                 g = ''.join(g)
                 genre.append(g)
 
-        print(genre)
+        # print(genre)
 
         bookLongInfo = []
         for r in result:
@@ -114,10 +121,64 @@ class UserBookDetailsView(View):
         for r in author_detail:
             authorInfo.append(AuthorDetail(r))
 
+        # userfullname = None
+        
+        
+        sql = """SELECT C.NAME, CUSTOMER_ID, R.ISBN, R.RATING, R.FEEDBACK
+                 FROM CUSTOMERS C
+                 LEFT OUTER JOIN REVIEWS R USING (CUSTOMER_ID)
+                 WHERE R.ISBN = %s"""
+        cursor.execute(sql, [isbn]) # request.session.get('username', default='guest')
+        result = cursor.fetchall()
+        cursor.close()
+        print(result)
+            
+        user_feedback = []
+        for r in result:
+            user_feedback.append(UserReview(r))
+
+
+        userfullname = None
+        if request.session.get('usertype') == 'customer':
+            cursor = connection.cursor()
+            sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+            cursor.execute(sql, [request.session.get('username', default='guest')])
+            result = cursor.fetchall()
+            cursor.close()
+            userfullname = result[0][0]
+
+        usertype = request.session.get('usertype', default='guest')
+        
+        
+
         context = {
             "bookLongInfo": bookLongInfo,
             "bookShortInfo": bookShortInfo,
             "authorInfo": authorInfo,
+            "userfullname": userfullname,
+            "usertype": usertype,
+            "feedback": user_feedback,
         }
 
         return render(request, 'book_details.html', context)
+
+    def post(self, request, isbn):
+        
+        username = str(request.session['username'])
+        rating = int(request.POST.get('rating'))
+        review = str(request.POST.get('review'))
+        if rating >=1 and rating <=5 and len(review) < 256:
+            cursor = connection.cursor()
+            sql = """INSERT INTO REVIEWS (CUSTOMER_ID, ISBN, RATING, FEEDBACK)
+                    VALUES (%s, %s, %s, %s)"""
+            cursor.execute(sql, [username, str(isbn), rating, review])
+            
+            connection.commit()
+            print(username, isbn, rating, review)
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+# def add_review(request, isbn):
+    
+#     # return redirect('add_review')
+#     pass
