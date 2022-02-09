@@ -11,7 +11,7 @@ L-2 T-2 Database Project
 * **sql :** contains sql commands that are required every now and then
 * **templates :** used for containing `html` template files
 
-### Things to do after pulling the repo -
+### Things to do after cloning the repo -
 1. Setup virtual environment
 2. Run
     ```
