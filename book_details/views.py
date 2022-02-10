@@ -148,6 +148,7 @@ class UserBookDetailsView(View):
             cursor.close()
             userfullname = result[0][0]
 
+        username = request.session.get('username')
         usertype = request.session.get('usertype', default='guest')
         
         
@@ -156,6 +157,7 @@ class UserBookDetailsView(View):
             "bookLongInfo": bookLongInfo,
             "bookShortInfo": bookShortInfo,
             "authorInfo": authorInfo,
+            "username": username,
             "userfullname": userfullname,
             "usertype": usertype,
             "feedback": user_feedback,
@@ -179,7 +181,7 @@ class UserBookDetailsView(View):
                 return_msg = cursor.var(str).var
                 cursor.callproc("POST_REVIEW", [username, str(isbn), rating, review, return_msg])
                 msg = return_msg.getvalue()   
-                messages.success(request, msg)
+                messages.info(request, msg)
                 connection.commit()
                 print(username, isbn, rating, review)
                 connection.close()
@@ -188,11 +190,3 @@ class UserBookDetailsView(View):
             print(quantity)
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-        
-
-    
-
-# def add_review(request, isbn):
-    
-#     # return redirect('add_review')
-#     pass
