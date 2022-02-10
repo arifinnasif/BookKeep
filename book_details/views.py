@@ -168,22 +168,29 @@ class UserBookDetailsView(View):
     def post(self, request, isbn):
         
         username = str(request.session['username'])
-        rating = int(request.POST.get('rating'))
-        review = str(request.POST.get('review'))
-        if rating >=1 and rating <=5 and len(review) < 256:
-            cursor = connection.cursor()
-            # sql = """INSERT INTO REVIEWS (CUSTOMER_ID, ISBN, RATING, FEEDBACK)
-            #         VALUES (%s, %s, %s, %s)"""
-            # cursor.execute(sql, [username, str(isbn), rating, review])
-            return_msg = cursor.var(str).var
-            cursor.callproc("POST_REVIEW", [username, str(isbn), rating, review, return_msg])
-            msg = return_msg.getvalue()   
-            messages.success(request, msg)
-            connection.commit()
-            print(username, isbn, rating, review)
-            connection.close()
+        try:
+            rating = int(request.POST.get('rating'))
+            review = str(request.POST.get('review'))
+            if rating >=1 and rating <=5 and len(review) < 256:
+                cursor = connection.cursor()
+                # sql = """INSERT INTO REVIEWS (CUSTOMER_ID, ISBN, RATING, FEEDBACK)
+                #         VALUES (%s, %s, %s, %s)"""
+                # cursor.execute(sql, [username, str(isbn), rating, review])
+                return_msg = cursor.var(str).var
+                cursor.callproc("POST_REVIEW", [username, str(isbn), rating, review, return_msg])
+                msg = return_msg.getvalue()   
+                messages.success(request, msg)
+                connection.commit()
+                print(username, isbn, rating, review)
+                connection.close()
+        except:
+            quantity = int(request.POST.get('quantity'))
+            print(quantity)
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        
+
+    
 
 # def add_review(request, isbn):
     

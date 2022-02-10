@@ -37,6 +37,10 @@
     .checked {
         color: orange;
     }
+
+    .cart_modal{
+        background-color: #daebf2;
+    }
 </style>
 
 
@@ -67,7 +71,7 @@
                 </a>
             </header>
 
-
+            {% for i in bookShortInfo %}
             <div class="row align-items-md-stretch">
                 <div class="p-3 mb-2 bg-light rounded-3">
                     <div class="book_image" align="center">
@@ -78,7 +82,7 @@
                         </figure>
                     </div>
                     <div class="container-fluid py-5 align-items-right book_desc">
-                        {% for i in bookShortInfo %}
+
                         <h2 class="display-5 fw-bold text-dark">{{i.bookName}}</h2>
                         <!-- <p class="col-md-8 fs-4">Using a series of utilities, you can create this jumbotron, just like
                             the
@@ -89,10 +93,11 @@
                         <h3 class="col-md-12 fs-3"> Price: ৳{{i.price}}</h3>
                         <h4 class="col-md-12 fs-3"> Genre: {{i.type}}</h4>
 
-                        {% endfor %}
+
 
                         <div class="pt-4">
-                            <button class="btn btn-primary btn-lg" type="button">
+                            <button class="btn btn-primary btn-lg" type="button" data-bs-toggle="modal"
+                                data-bs-target="#addCartModal">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                     class="bi bi-cart" viewBox="0 0 16 16">
                                     <path
@@ -117,8 +122,50 @@
                     </div>
                 </div>
             </div>
-        </div>
 
+
+            <!-- Modal -->
+
+
+            <div class="modal fade" id="addCartModal" tabindex="-1" aria-labelledby="addCartModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-dialog-scrollable">
+                    <div class="modal-content cart_modal">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addCartModalLabel">Add This Book To My Cart</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <h3>
+                                {{i.bookName}}
+                            </h3>
+                            <h4>
+                                ৳{{i.price}}
+                            </h4>
+                            <form id="cart" method="post" class="pb-4" action="{{i.isbn}}">
+                                {% csrf_token %}
+
+                                <h5>
+                                    Enter quantity
+                                </h3>
+                                <label for="quantity">Check out the stock before entering! : </label>
+                                
+                                <!-- max quantity given 100 -->
+                                
+                                <input type="number" id="quantity" name="quantity" min="1" max="100" value="1">
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button submit" form="cart" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% endfor %}
+
+        </div>
 
         <!-- book details div -->
 
