@@ -46,10 +46,13 @@
 
     <main>
 
+
+
         <!-- book overview div -->
 
         <div class="container py-4">
             <header class="pb-3 mb-4 border-bottom">
+
                 <a href="#" class="d-flex align-items-center text-dark text-decoration-none">
                     <!-- <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" class="me-2" viewBox="0 0 118 94"
                         role="img">
@@ -129,25 +132,44 @@
                 </a>
             </header>
 
+
             <!-- Nav tabs -->
+            {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-dismissible alert-success">
+                <button type="button" class="close" data-dismiss="alert">
+                    ×
+                </button>
+                <strong>{{message}}</strong>
+            </div>
+            {% endfor %}
+            {% endif %}
+
 
             <ul class="nav nav-pills" id="myTab" role="tablist" style="font-size:x-large;">
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="specification-tab" data-toggle="tab" href="#specification" role="tab"
-                        aria-controls="specification" aria-selected="true">Specification</a>
+                    <a class="nav-link active" id="" data-toggle="tab" href="#reviews" role="tab"
+                        aria-controls="reviews" aria-selected="true">Reviews</a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="specification-tab" data-toggle="tab" href="#specification" role="tab"
+                        aria-controls="specification" aria-selected="false">Specification</a>
                 </li>
                 <li class="nav-item" role="presentation">
                     <a class="nav-link" id="author_details-tab" data-toggle="tab" href="#author_details" role="tab"
                         aria-controls="author_details" aria-selected="false">Author Details</a>
                 </li>
-                <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="reviews-tab" data-toggle="tab" href="#reviews" role="tab"
-                        aria-controls="reviews" aria-selected="false">Reviews</a>
-                </li>
             </ul>
 
+
+
+
             <div class="tab-content">
-                <div class="tab-pane active" id="specification" role="tabpanel" aria-labelledby="specification-tab">
+
+
+                <!-- Specification -->
+
+                <div class="tab-pane" id="specification" role="tabpanel" aria-labelledby="specification-tab">
 
                     <div class="pt-3">
                         <table class="table table-striped table-hover" style="font-size:larger;">
@@ -200,6 +222,11 @@
                     </div>
 
                 </div>
+
+
+                <!-- Author Detail -->
+
+
                 <div class="tab-pane" id="author_details" role="tabpanel" aria-labelledby="author_details-tab">
                     <div class="pt-3">
                         <table class="table table-striped table-hover" style="font-size:larger;">
@@ -228,7 +255,10 @@
 
                     </div>
                 </div>
-                <div class="tab-pane" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
+
+                <!-- Review -->
+
+                <div class="tab-pane active" id="reviews" role="tabpanel" aria-labelledby="reviews-tab">
                     <div class="pt-3">
 
                         {% for i in bookLongInfo %}
@@ -282,10 +312,10 @@
                                 {% endif %}
                                 {% endfor %}
                                 <p class="lead">{{i.review}}</p>
-                                
+
                             </div>
                         </div>
-                        
+
                         {% endif %}
                         {% endfor %}
                     </div>

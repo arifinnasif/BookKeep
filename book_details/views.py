@@ -1,5 +1,6 @@
 from django.db import connection
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.views import View
 import datetime
 from django.http import HttpResponseRedirect
@@ -162,6 +163,8 @@ class UserBookDetailsView(View):
 
         return render(request, 'book_details.html', context)
 
+    
+    
     def post(self, request, isbn):
         
         username = str(request.session['username'])
@@ -169,12 +172,16 @@ class UserBookDetailsView(View):
         review = str(request.POST.get('review'))
         if rating >=1 and rating <=5 and len(review) < 256:
             cursor = connection.cursor()
-            sql = """INSERT INTO REVIEWS (CUSTOMER_ID, ISBN, RATING, FEEDBACK)
-                    VALUES (%s, %s, %s, %s)"""
-            cursor.execute(sql, [username, str(isbn), rating, review])
-            
+            # sql = """INSERT INTO REVIEWS (CUSTOMER_ID, ISBN, RATING, FEEDBACK)
+            #         VALUES (%s, %s, %s, %s)"""
+            # cursor.execute(sql, [username, str(isbn), rating, review])
+            return_msg = cursor.var(str).var
+            cursor.callproc("POST_REVIEW", [username, str(isbn), rating, review, return_msg])
+            msg = return_msg.getvalue()   
+            messages.success(request, msg)
             connection.commit()
             print(username, isbn, rating, review)
+            connection.close()
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
