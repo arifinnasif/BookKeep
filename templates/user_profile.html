@@ -9,4 +9,104 @@
 
 {% block content %}
 
+<div class="container-fluid">
+    <div class="row">
+        <!-- <div class="col-2 px-1 position-fixed" style="background-color: #cccccc;" id="sticky-sidebar"> -->
+        <!-- <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2"> -->
+        <div id="sidebar" class="col-2 position-fixed d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
+            style="width: 280px; top: 60px; bottom: 0px; position: fixed;">
+            <a id="user-profile" href="{% url 'user-profile' cid=username %}"
+                class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+                <svg class="bi me-2" width="40" height="32">
+                    <use xlink:href="#bootstrap" />
+                </svg>
+                <span class="fs-4">My Profile</span>
+            </a>
+            <hr>
+
+            
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li class="nav-item">
+                    <a id="my-cart" href="{% url 'user-profile-cart' cid=username %}"
+                        class="nav-link text-white active"
+                        aria-current="page">
+                        <svg class="bi me-2" width="16" height="16">
+                            <use xlink:href="#home" />
+                        </svg>
+                        My Cart
+                    </a>
+                </li>
+                <!-- <li>
+                    <a id="book-list" href="/manage/book-list/"
+                        class="nav-link text-white {% block book-list-anchor-class %}{% endblock %}">
+                        <svg class="bi me-2" width="16" height="16">
+                            <use xlink:href="#speedometer2" />
+                        </svg>
+                        Book List
+                    </a>
+                </li> -->
+                <!-- <li>
+                    <a id="author-list" href="/manage/author-list/"
+                        class="nav-link text-white {% block author-list-anchor-class %}{% endblock %}">
+                        <svg class="bi me-2" width="16" height="16">
+                            <use xlink:href="#speedometer2" />
+                        </svg>
+                        Author List
+                    </a>
+                </li>
+                <li>
+                    <a id="order-log" href="/manage/order-log/"
+                        class="nav-link text-white {% block order-log-anchor-class %}{% endblock %}">
+                        <svg class="bi me-2" width="16" height="16">
+                            <use xlink:href="#table" />
+                        </svg>
+                        Order Log
+                    </a>
+                </li>
+                <li>
+                    <a id="borrow-requests" href="#" class="nav-link text-white">
+                        <svg class="bi me-2" width="16" height="16">
+                            <use xlink:href="#grid" />
+                        </svg>
+                        Borrow Requests
+                    </a>
+                </li>
+                <li>
+                    <a id="offers" href="#" class="nav-link text-white">
+                        <svg class="bi me-2" width="16" height="16">
+                            <use xlink:href="#people-circle" />
+                        </svg>
+                        Sales and Offers
+                    </a>
+                </li>
+                <li>
+                    <a id="plans" href="#" class="nav-link text-white">
+                        <svg class="bi me-2" width="16" height="16">
+                            <use xlink:href="#people-circle" />
+                        </svg>
+                        Plans
+                    </a>
+                </li> -->
+            </ul>
+
+            <hr>
+            <a href="#" class="nav-link bg-danger rounded text-center text-white">
+                <!-- <svg class="bi me-2" width="16" height="16">
+                            <use xlink:href="#people-circle" />
+                        </svg> -->
+                Logout
+            </a>
+        </div>
+        <!-- </div> -->
+        <!-- </div> -->
+        <div class="col-10 offset-2" id="main">
+            <div class="container-fluid mt-4">
+                {% block user-profile-content-block %}
+
+                {% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}

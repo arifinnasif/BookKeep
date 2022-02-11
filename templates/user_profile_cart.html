@@ -1,0 +1,172 @@
+{% extends 'user_profile.html' %}
+{% load static %}
+
+{% block user-profile-content-block %}
+
+<style>
+    .book_box {
+        height: 200px;
+    }
+
+    .book_image {
+        height: 100%;
+        width: 40%;
+        float: left;
+    }
+
+    .book_desc {
+        width: 60%;
+        height: 300px;
+        float: right;
+    }
+
+    .my-isbn {
+        display: none;
+    }
+</style>
+
+<header class="pb-3 mb-4 border-bottom">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-dismissible alert-success">
+        <button type="button" class="close" data-dismiss="alert">
+            ×
+        </button>
+        <strong>{{message}}</strong>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <a href="#" class="d-flex align-items-center text-dark text-decoration-none">
+        <!-- <svg xmlns="http://www.w3.org/2000/svg" width="40" height="32" class="me-2" viewBox="0 0 118 94"
+            role="img">
+            <title>Bootstrap</title>
+            <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M24.509 0c-6.733 0-11.715 5.893-11.492 12.284.214 6.14-.064 14.092-2.066 20.577C8.943 39.365 5.547 43.485 0 44.014v5.972c5.547.529 8.943 4.649 10.951 11.153 2.002 6.485 2.28 14.437 2.066 20.577C12.794 88.106 17.776 94 24.51 94H93.5c6.733 0 11.714-5.893 11.491-12.284-.214-6.14.064-14.092 2.066-20.577 2.009-6.504 5.396-10.624 10.943-11.153v-5.972c-5.547-.529-8.934-4.649-10.943-11.153-2.002-6.484-2.28-14.437-2.066-20.577C105.214 5.894 100.233 0 93.5 0H24.508zM80 57.863C80 66.663 73.436 72 62.543 72H44a2 2 0 01-2-2V24a2 2 0 012-2h18.437c9.083 0 15.044 4.92 15.044 12.474 0 5.302-4.01 10.049-9.119 10.88v.277C75.317 46.394 80 51.21 80 57.863zM60.521 28.34H49.948v14.934h8.905c6.884 0 10.68-2.772 10.68-7.727 0-4.643-3.264-7.207-9.012-7.207zM49.948 49.2v16.458H60.91c7.167 0 10.964-2.876 10.964-8.281 0-5.406-3.903-8.178-11.425-8.178H49.948z"
+                fill="currentColor"></path>
+        </svg> -->
+        <span class="fs-4">
+            <h1>My Cart</h1>
+        </span>
+    </a>
+</header>
+
+
+{% for i in cart %}
+<div class="container-fluid row align-items-md-stretch">
+    <div class="bg-light p-3 mb-2 rounded-3" style="height: 300px;">
+        <!--p-3 mb-2 rounded-3-->
+        <div class="book_image" align="center">
+            <figure class="figure">
+                <img src="{% static 'book_cover/War-and-Peace.jpg' %}" class="figure-img img-fluid rounded"
+                    alt="alternative text for book image" style="height: 250px;">
+                <figcaption class="figure-caption">A caption for the above image.</figcaption>
+            </figure>
+        </div>
+        <div class="container-fluid py-5 align-items-right book_desc">
+
+            <h4 class="display-8 fw-bold text-dark">{{i.bookName}}</h4>
+            <!-- <p class="col-md-8 fs-4">Using a series of utilities, you can create this jumbotron, just like
+                            the
+                            one in previous versions of Bootstrap. Check out the examples below for how you can remix
+                            and
+                            restyle it to your liking.</p> -->
+            <h5 class="col-md-12 fs-5"> By- {{i.authorName}} </h5>
+            <h6 class="col-md-12 fs-5"> Price: ৳{{i.price}}</h6>
+            <h6 class="col-md-12 fs-5">Quantity: {{i.quantity}}</h6>
+            <h6 class="col-md-12 fs-5 my-isbn">{{i.isbn}}</h6>
+
+            <div class="pt-2">
+                <button class="btn btn-primary btn-lg my-edit-btn" type="button" data-bs-toggle="modal"
+                    data-bs-target="#editCartModal">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-cart" viewBox="0 0 16 16">
+                        <path
+                            d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                    </svg>
+                    Edit Cart</button>
+                <button class="btn btn-primary btn-lg btn btn-success" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                        class="bi bi-cart" viewBox="0 0 16 16">
+                        <path
+                            d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                    </svg>
+                    Delete From Cart</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- Modal -->
+
+
+<div class="modal fade" id="editCartModal" tabindex="-1" aria-labelledby="editCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content cart_modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editCartModalLabel">Edit Cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form id="cart" method="post" class="pb-4" action="{% url 'user-profile-cart' cid=username %}">
+                    {% csrf_token %}
+
+                    <h3>
+                        Enter the quantity you want!
+                    </h3>
+                    <h4>
+                        <!-- {{i.isbn}} -->
+                    </h4>
+                    <label for="quantity">Check out the stock before entering! : </label>
+
+                    <!-- max quantity given 100 -->
+
+                    <input type="number" id="modal-quantity" name="quantity" min="1" max="100" value="1">
+                    <input type="hidden" id="modal-isbn" name="isbn" value="my-isbn">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button submit" form="cart" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.my-edit-btn').click(function () {
+            var v = $(event.target).parent().siblings(".my-isbn").text();
+            $("#modal-isbn").val(v);
+
+            // var v = $(event.target).parent().siblings(".my-bookName").text();
+            // $("#modal-bookName").val(v);
+
+            // var v = $(event.target).parent().siblings(".my-authorID").text();
+            // $("#modal-authorName").find(`[value=${v}]`).attr("selected", "selected");
+
+            // var v = $(event.target).parent().siblings(".my-edition").text();
+            // $("#modal-edition").val(v);
+
+            // var v = $(event.target).parent().siblings(".my-releaseDate").text();
+            // $("#modal-releaseDate").val(v);
+
+            // var v = $(event.target).parent().siblings(".my-price").text();
+            // $("#modal-price").val(v.substring(1));
+
+            // var v = $(event.target).parent().siblings(".my-pageCount").text();
+            // $("#modal-pageCount").val(v);
+
+            // var v = $(event.target).parent().siblings(".my-quantity").text();
+            // $("#modal-quantity").val(v);
+
+            // var v = $(event.target).parent().siblings(".my-publisherID").text();
+            // $("#modal-publisherName").find(`[value=${v}]`).attr("selected", "selected");
+        });
+    });
+</script>
+
+{% endblock %}
