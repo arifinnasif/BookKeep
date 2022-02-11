@@ -152,12 +152,7 @@
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <h3>
-                                {{i.bookName}}
-                            </h3>
-                            <h4>
-                                ৳{{i.price}}
-                            </h4>
+
                             <form id="cart" method="post" class="pb-4"
                                 action="{% url 'user-profile-cart' cid=username %}">
                                 {% csrf_token %}
@@ -167,7 +162,10 @@
                                     </h3>
                                     <label for="quantity">Check out the stock before entering! : </label>
 
+                                    <input type="hidden" name="post_type" value="add">
+
                                     <!-- max quantity given 100 -->
+
 
                                     <input type="number" id="quantity" name="quantity" min="1" max="100" value="1">
                                     <input type="hidden" id="modal-isbn" name="isbn" value="my-isbn">
