@@ -62,16 +62,37 @@
     {% else %}
     <h5 id="offcanvasRightLabel">login and profile links goes here</h5>
     {% endif %}
-
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
   <div class="offcanvas-body">
-    {% if usertype == 'customer' %}
-    <a href="logout/">Log out</a>
-    {% else %}
-    <a href="login/">Sign in</a>
-    ....
-    {% endif %}
+    
+<ul class="nav flex-column">
+
+  {% if usertype == 'customer' %}
+  <li class="nav-item">
+    <!-- cid = <variable> must be mentioned inside url dispatcher, and '='' can't have any preceding space -->
+    <a class="nav-link" aria-current="page" href="{% url 'user-profile' cid=username %}">My Profile</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="#">My Cart</a>
+  </li>
+  <li>
+    <a class="nav-link" href="logout/">Log out</a>
+  </li>
+
+  {% else %}
+  <li>
+    <a class="nav-link" href="login/">Sign in</a>
+  </li>
+  {% endif %}
+</ul>
+
+
+
+    {% block offcanvas_content %}
+
+    {% endblock %}
+
   </div>
 </div>
 

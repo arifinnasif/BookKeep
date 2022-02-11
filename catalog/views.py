@@ -37,9 +37,11 @@ def show_homepage(request):
         cursor.close()
         userfullname = result[0][0]
 
+    username = request.session.get('username')
     usertype = request.session.get('usertype', default='guest')
 
     context = {
+        "username": username,
         "userfullname" : userfullname,
         "usertype" : usertype,
         "books" : books,
