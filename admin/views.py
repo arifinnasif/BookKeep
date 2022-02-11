@@ -399,3 +399,202 @@ class AdminOrderLogView(View):
         cursor.execute(sql,[datetime.datetime.now(), request.POST.get('orderID')])
         cursor.close()
         return redirect('admin-order-log-view')
+
+
+class AdminPublisherListView(View):
+    def get(self, request):
+        cursor = connection.cursor()
+        sql =   """
+                SELECT P.NAME, (SELECT COUNT(*) FROM BOOKS B WHERE B.PUBLISHER_ID = P.PUBLISHER_ID), P.OFFICE_LOCATION, P.PUBLISHER_ID
+                FROM PUBLISHERS P
+                """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        publisherInfo = []
+        for r in result:
+            cursor = connection.cursor()
+            sql =   """
+                    SELECT CONTACT_NUMBER
+                    FROM PUBLISHER_CONTACT_NUMBER
+                    WHERE PUBLISHER_ID = %s
+                    """
+            cursor.execute(sql,[int(r[3])])
+            result2 = cursor.fetchall()
+            cursor.close()
+
+            contact_numbers = []
+            for r2 in result2:
+                contact_numbers.append(r2[0])
+
+
+            publisherInfo.append({
+                "publisherName" : r[0],
+                "cnt_books" : r[1],
+                "contact_numbers" : contact_numbers,
+                "address" : r[2],
+                "publisherID" : r[3],
+            })
+
+
+
+
+        context = {
+            "publisherInfo" : publisherInfo,
+        }
+
+        return render(request, 'admin_panel_publisher_list.html', context)
+
+    def post(self, request):
+        # print(request.POST.get("post_type"))
+        post_type = request.POST.get("post_type")
+
+        if post_type == "delete":
+            publisherID = request.POST.get("publisherID")
+
+            try:
+                publisherID = int(publisherID)
+            except ValueError:
+                messages.error(request, 'Something went wrong')
+                return redirect('admin-publisher-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                    SELECT COUNT(*)
+                    FROM BOOKS
+                    WHERE PUBLISHER_ID=%s
+                    """
+            cursor.execute(sql,[publisherID])
+            result = cursor.fetchall()
+            cursor.close()
+
+            if int(result[0][0]) != 0:
+                messages.error(request, "Cannot delete a publisher who has some books")
+                return redirect('admin-publisher-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                    DELETE FROM PUBLISHERS WHERE PUBLISHER_ID = %s
+                    """
+            cursor.execute(sql,[publisherID])
+            cursor.close()
+            return redirect('admin-publisher-list-view')
+
+        # print(request.POST.get("authorName"))
+        # print(request.POST.get("DOB"))
+        # print(request.POST.get("DOD"))
+        # print(request.POST.get("about"))
+        publisherName = request.POST.get("publisherName")
+        if len(publisherName) == 0:
+            messages.error(request, "Set a name for the publisher")
+            return redirect('admin-publisher-list-view')
+        address = request.POST.get("address")
+        contact_numbers = request.POST.get('contact_numbers').split(",")
+        if post_type == "edit":
+            publisherID = request.POST.get("publisherID")
+
+            try:
+                publisherID = int(publisherID)
+            except ValueError:
+                messages.error(request, 'Something went wrong')
+                return redirect('admin-author-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                    UPDATE PUBLISHERS
+                    SET
+                        NAME = %s ,
+                        OFFICE_LOCATION = %s
+                    WHERE
+                        PUBLISHER_ID = %s
+                    """
+            cursor.execute(sql, [publisherName, address, publisherID])
+            cursor.close()
+
+
+            cursor = connection.cursor()
+            sql =   """
+                    DELETE FROM PUBLISHER_CONTACT_NUMBER
+                    WHERE PUBLISHER_ID = %s
+                    """
+            cursor.execute(sql, [publisherID])
+            cursor.close()
+
+
+
+            for i2 in contact_numbers:
+                cursor = connection.cursor()
+                sql =   """
+                        INSERT INTO PUBLISHER_CONTACT_NUMBER
+                            (
+                                PUBLISHER_ID,
+                                CONTACT_NUMBER
+                            )
+                        VALUES
+                            (
+                                %s,
+                                %s
+                            )
+                        """
+                cursor.execute(sql, [publisherID, i2.strip()])
+                cursor.close()
+
+
+
+
+
+            messages.success(request, "Successfully updated")
+        elif post_type == "add":
+            cursor = connection.cursor()
+            sql =   """
+                    SELECT PUBLISHER_ID_AUTOINCREMENT_SEQ.NEXTVAL FROM DUAL
+                    """
+            cursor.execute(sql)
+            publisherID = int(cursor.fetchall()[0][0])
+            cursor.close()
+
+
+            cursor = connection.cursor()
+            sql =   """
+                    INSERT INTO PUBLISHERS
+                        (
+                            PUBLISHER_ID,
+                            NAME,
+                            OFFICE_LOCATION
+                        )
+                    VALUES
+                        (
+                            %s,
+                            INITCAP(%s),
+                            %s
+                        )
+                    """
+            cursor.execute(sql, [publisherID, publisherName, address])
+            cursor.close()
+
+
+            for i2 in contact_numbers:
+                cursor = connection.cursor()
+                sql =   """
+                        INSERT INTO PUBLISHER_CONTACT_NUMBER
+                            (
+                                PUBLISHER_ID,
+                                CONTACT_NUMBER
+                            )
+                        VALUES
+                            (
+                                %s,
+                                %s
+                            )
+                        """
+                cursor.execute(sql, [publisherID, i2.strip()])
+                cursor.close()
+
+
+
+
+            messages.success(request, "Successfully added")
+
+
+        return redirect('admin-publisher-list-view')
