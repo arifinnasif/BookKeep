@@ -74,15 +74,15 @@
     <a class="nav-link" aria-current="page" href="{% url 'user-profile' cid=username %}">My Profile</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">My Cart</a>
+    <a class="nav-link" href="{% url 'user-profile-cart' cid=username %}">My Cart</a>
   </li>
   <li>
-    <a class="nav-link" href="logout/">Log out</a>
+    <a class="nav-link" href="{% url 'customer-logout-view' %}">Log out</a>
   </li>
 
   {% else %}
   <li>
-    <a class="nav-link" href="login/">Sign in</a>
+    <a class="nav-link" href="{% url 'customer-login-view' %}">Sign in</a>
   </li>
   {% endif %}
 </ul>

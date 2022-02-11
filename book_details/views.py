@@ -11,6 +11,7 @@ from django.http import HttpResponseRedirect
 class BookShortDetail:
     def __init__(self, entry, genre):
         self.bookName = entry[0]
+        self.isbn = entry[1]
         self.authorName = entry[2]
         self.price = entry[4]
         self.type = ", ".join(genre)
