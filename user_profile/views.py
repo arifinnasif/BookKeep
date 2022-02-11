@@ -82,19 +82,25 @@ class MyCartView(View):
             messages.error(request, 'Something went wrong. Please try again!')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
         
-
+        
 
         cursor = connection.cursor()
-        sql = """UPDATE CARTS 
-                SET QUANTITY = %s
-                WHERE CUSTOMER_ID = %s AND ISBN = %s"""
-        cursor.execute(sql, [quantity, username, isbn])
-         
-        messages.success(request, 'Cart edited successfully!')
-        connection.commit()
+        sql = """SELECT COUNT(*) FROM BOOKS WHERE ISBN = %s"""
+        cursor.execute(sql, [isbn])
+        result = cursor.fetchall()
+        result = result[0][0]
+        if result == 0:
+            messages.error(request, 'Something went wrong. Please try again!')
+        else:
+        
+            return_msg = cursor.var(str).var
+            cursor.callproc("INSERT_UPDATE_CART", [quantity, username, isbn, return_msg])
+            msg = return_msg.getvalue()   
+            messages.info(request, msg)
+            connection.commit()
             
-        connection.close()
-    
+            connection.close()
+                
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 

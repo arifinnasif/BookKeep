@@ -74,7 +74,7 @@
     <a class="nav-link" aria-current="page" href="{% url 'user-profile' cid=username %}">My Profile</a>
   </li>
   <li class="nav-item">
-    <a class="nav-link" href="#">My Cart</a>
+    <a class="nav-link" href="{% url 'user-profile-cart' cid=username %}">My Cart</a>
   </li>
   <li>
     <a class="nav-link" href="logout/">Log out</a>
