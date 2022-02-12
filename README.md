@@ -10,6 +10,7 @@ L-2 T-2 Database Project
 * **login :** this app handles user login and session managements
 * **sql :** contains sql commands that are required every now and then
 * **templates :** used for containing `html` template files
+* **custome_utils :** intended to be a package that contain the elements needed in the entire django project irrespective of apps
 
 ### Things to do after cloning the repo -
 1. Setup virtual environment
