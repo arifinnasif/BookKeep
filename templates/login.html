@@ -21,8 +21,14 @@
   }
 </style>
 
+<h2>{{usertype}}</h2>
+
 <div class="jumbotron p-3 mb-2 rounded-3">
+  {% if usertype == 'Customer' %}
   <form action="{% url 'customer-login-view' %}" method='post'>
+  {% elif usertype == 'Manager' %}
+  <form action="{% url 'manager-login-view' %}" method='post'>
+  {% endif %}
     {% csrf_token %}
     <div class="mb-3">
       <label for="username" class="form-label">Username</label>

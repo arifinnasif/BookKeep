@@ -5,14 +5,16 @@ from BookKeep.settings import BASE_DIR
 from django.contrib import messages
 import datetime
 import os
+from custom_utils import check_if_authorized_manager
 
 import datetime
 
 
 # Create your views here.
-
-def show_admin(request):
-    return render(request, 'admin_panel.html')
+class AdminPanel(View):
+    @check_if_authorized_manager
+    def get(self, request):
+        return render(request, 'admin_panel.html')
 
 
 class CustomerInfoModel:
@@ -35,6 +37,7 @@ class CustomerInfoModel:
 
 
 class AdminCustomerListView(View):
+    @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
         sql = """SELECT CUSTOMER_ID, C.NAME, C.ADDRESS, C.EMAIL, C.ACCOUNT_CREATED_ON, S.MEMBERSHIP_BOUGHT_ON, P.NAME
@@ -81,6 +84,7 @@ class BookInfoModel:
 
 
 class AdminBookListView(View):
+    @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
         sql = """SELECT ISBN, B.NAME, A.NAME, B.EDITION, B.RELEASE_DATE, B.PRICE, B.PAGE_COUNT, B.QUANTITY, P.NAME, AUTHOR_ID, PUBLISHER_ID
@@ -120,6 +124,7 @@ class AdminBookListView(View):
 
         return render(request, 'admin_panel_book_list.html', context)
 
+    @check_if_authorized_manager
     def post(self, request):
         post_type       = request.POST.get("post_type")
         isbn            = request.POST.get("ISBN")
@@ -194,6 +199,7 @@ class AdminBookListView(View):
 
 
 class AdminAuthorListView(View):
+    @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
         sql =   """
@@ -225,6 +231,7 @@ class AdminAuthorListView(View):
 
         return render(request, 'admin_panel_author_list.html', context)
 
+    @check_if_authorized_manager
     def post(self, request):
         # print(request.POST.get("post_type"))
         post_type = request.POST.get("post_type")
@@ -329,6 +336,7 @@ class AdminAuthorListView(View):
 
 
 class AdminOrderLogView(View):
+    @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
         sql =   """
@@ -391,6 +399,7 @@ class AdminOrderLogView(View):
         }
         return render(request, 'admin_panel_order_log.html', context)
 
+    @check_if_authorized_manager
     def post(self, request):
         cursor = connection.cursor()
         sql =   """
@@ -402,6 +411,7 @@ class AdminOrderLogView(View):
 
 
 class AdminPublisherListView(View):
+    @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
         sql =   """
@@ -446,6 +456,7 @@ class AdminPublisherListView(View):
 
         return render(request, 'admin_panel_publisher_list.html', context)
 
+    @check_if_authorized_manager
     def post(self, request):
         # print(request.POST.get("post_type"))
         post_type = request.POST.get("post_type")
