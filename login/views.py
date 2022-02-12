@@ -7,7 +7,10 @@ from django.contrib import messages
 # Create your views here.
 class CustomerLoginView(View):
     def get(self, request):
-        return render(request, 'login.html')
+        context = {
+            'usertype' : 'Customer',
+        }
+        return render(request, "login.html", context)
 
     def post(self, request):
         username = request.POST.get("username")
@@ -40,4 +43,35 @@ class CustomerLogoutView(View):
 
 
 def show_login_page(request):
-    return render(request, "login.html")
+    context = {
+        'usertype' : 'Customer',
+    }
+    return render(request, "login.html", context)
+
+
+class ManagerLoginView(View):
+    def get(self, request):
+        context = {
+            'usertype' : 'Manager',
+        }
+        return render(request, "login.html", context)
+
+    def post(self, request):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+
+        cursor = connection.cursor()
+        sql = "SELECT PASSWORD FROM MANAGERS WHERE ADMIN_ID=%s"
+        cursor.execute(sql, [username])
+        result = cursor.fetchall()
+        cursor.close()
+
+
+        if len(result) > 0 and result[0][0] == password:
+            request.session['username'] = username
+            request.session['usertype'] = 'manager'
+            return redirect('admin-panel')
+        else:
+            messages.error(request, 'Username or Password incorrect')
+            return redirect('manager-login-view')
