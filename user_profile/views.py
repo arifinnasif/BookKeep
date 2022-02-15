@@ -1,4 +1,3 @@
-from multiprocessing.sharedctypes import Value
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.db import connection
 from django.views import View
@@ -38,9 +37,31 @@ class BookInTheCart:
         self.quantity = entry[3]
         self.price = entry[4]
 
+class BookOrderList:
+    def __init__(self, entry):
+        self.oid = entry[0]
+        self.isbn = entry[1]
+        self.bookName = entry[2]
+        self.unitprice = entry[3]
+        self.quantity = entry[4]
+        self.orderdate = entry[5].strftime("%d %B %Y")
+        if entry[6] is None:
+            self.deliverydate = ""
+        else:
+            self.deliverydate = entry[6].strftime("%d %B %Y")        
+
 
 class MyCartView(View):
     def get(self, request, cid):
+
+        userfullname = None
+        if request.session.get('usertype') == 'customer':
+            cursor = connection.cursor()
+            sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+            cursor.execute(sql, [request.session.get('username', default='guest')])
+            result = cursor.fetchall()
+            cursor.close()
+            userfullname = result[0][0]
 
         cursor = connection.cursor()
         sql = """SELECT ISBN, B.NAME BOOK, A.NAME AUTHOR, C.QUANTITY, B.PRICE
@@ -64,6 +85,7 @@ class MyCartView(View):
         usertype = request.session.get('usertype', default='guest')
 
         context = {
+            "userfullname": userfullname,
             "username": username,
             "usertype": usertype,
             "cart": user_cart,
@@ -123,8 +145,53 @@ class MyCartView(View):
             connection.close()
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+class MyOrderView(View):
+    def get(self, request, cid):
 
+        cursor = connection.cursor()
+        sql = """SELECT ORDER_ID, ISBN, B.NAME BOOK, OB.UNIT_PRICE, OB.QUANTITY, O.ORDERING_DATE, O.DELIVERY_DATE
+                FROM ORDERS O
+                LEFT OUTER JOIN ORDER_BOOK OB USING (ORDER_ID)
+                LEFT OUTER JOIN BOOKS B USING (ISBN)
+                WHERE O.CUSTOMER_ID = %s"""
+        cursor.execute(sql, [cid])
+        result = cursor.fetchall()
+
+        order_list = []
+        pending_list = []
+        if len(result) == 0:
+            messages.error(request, 'You Haven\'t Ordered Any Book Yet!')
+        else:
+            for r in result:
+                print(r)
+                if r[-1] is None:   # the order is still pending 
+                    pending_list.append(BookOrderList(r))
+                else:
+                    order_list.append(BookOrderList(r))
+            
+            if len(order_list) == 0:
+                messages.error(request, 'You Don\'t Have Any Completed Order!')
+            if len(pending_list) == 0:
+                messages.error(request, 'You Don\'t Have Any Pending Order!')
 
         
+        userfullname = None
+        if request.session.get('usertype') == 'customer':
+            cursor = connection.cursor()
+            sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+            cursor.execute(sql, [request.session.get('username', default='guest')])
+            result = cursor.fetchall()
+            cursor.close()
+            userfullname = result[0][0]
 
-
+        username = request.session.get('username')
+        usertype = request.session.get('usertype')
+        context = {
+            "userfullname": userfullname,
+            "username": username,
+            "usertype": usertype,
+            "order": order_list,
+            "pending": pending_list,
+        }
+        
+        return render(request, 'user_profile_orders.html', context)
