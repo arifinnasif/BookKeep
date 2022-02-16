@@ -7,7 +7,7 @@
 <div style="float:right">
   <button class="btn" type="button" name="addButton" data-bs-toggle="modal" data-bs-target="#addModal">
     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-plus-square-fill" viewBox="0 0 16 16">
-      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z"/>
+      <path d="M2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2zm6.5 4.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3a.5.5 0 0 1 1 0z" />
     </svg>
   </button>
 
@@ -57,23 +57,25 @@
       <td class="my-authorID d-none">{{row.authorID}}</td>
       <td class="my-publisherID d-none">{{row.publisherID}}</td>
       <td>
+        <div class="btn-group">
+          <button type="button" title="Edit" class="btn btn-secondary my-edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-ISBN="{{row.ISBN}}" data-bookName="{{row.bookName}}" data-authorID="{{row.authorID}}" data-edition="{{row.edition}}"
+            data-releaseDate="{{row.releaseDate}}" data-price="{{row.price}}" data-pageCount="{{row.pageCount}}" data-quantity="{{row.quantity}}" data-publisherID="{{row.publisherID}}"
+            data-bookType='[{% for i in row.bookType %} {% if forloop.last %} "{{ i }}" {% else %} "{{ i }}", {% endif %} {% endfor %}]'>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
+              <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+              <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
+            </svg>
+          </button>
+          <button type="button" title="Grant Offer" class="btn btn-secondary my-offer-btn" data-bs-toggle="modal" data-bs-target="#offerModal" data-ISBN="{{row.ISBN}}" data-bookName="{{row.bookName}}"
+            data-offerID="{% if row.offerID is not None %}{{row.offerID}}{% else %}-1{% endif %}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-percent" viewBox="0 0 16 16">
+              <path
+                d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0zM4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
+            </svg>
+          </button>
+        </div>
         <!-- Button trigger modal -->
-        <button type="button" class="btn btn-secondary my-edit-btn" data-bs-toggle="modal" data-bs-target="#editModal"
-        data-ISBN="{{row.ISBN}}"
-        data-bookName="{{row.bookName}}"
-        data-authorID="{{row.authorID}}"
-        data-edition="{{row.edition}}"
-        data-releaseDate="{{row.releaseDate}}"
-        data-price="{{row.price}}"
-        data-pageCount="{{row.pageCount}}"
-        data-quantity="{{row.quantity}}"
-        data-publisherID="{{row.publisherID}}"
-        data-bookType='[{% for i in row.bookType %} {% if forloop.last %} "{{ i }}" {% else %} "{{ i }}", {% endif %} {% endfor %}]' >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-          <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
-          <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z" />
-        </svg>
-        </button>
+
       </td>
     </tr>
     {% endfor %}
@@ -87,7 +89,7 @@
 
 <!-- edit Modal -->
 <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalLabel">Edit Book Info</h5>
@@ -181,7 +183,7 @@
 
 <!-- add modal -->
 <div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-scrollable">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="modalLabel">Add A New Book</h5>
@@ -272,6 +274,44 @@
   </div>
 </div>
 
+<!-- offer modal -->
+<div class="modal fade" id="offerModal" tabindex="-1" aria-labelledby="offerModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="offermodalLabel">Grant offer to <b>BookName</b></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form id="offerBookForm" action="{% url 'admin-book-list-view' %}" method='post' enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="post_type" value="offer" />
+          <input type="hidden" name="ISBN" id="modal-offer-ISBN" value="my isbn" />
+          {% for offer in offerList %}
+          <div class="mb-3">
+            <div class="form-check">
+
+              <input class="form-check-input" type="radio" name="offerID" id="my-offer-{{offer.0}}" value="{{offer.0}}">
+              <label class="form-check-label" for="my-offer-{{offer.0}}">
+                {{offer.1}}
+              </label>
+
+
+            </div>
+          </div>
+          {% endfor %}
+
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button id="modal-offer-revoke-order-btn" type="button" class="btn btn-danger">Revoke offer</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button submit" form="offerBookForm" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript">
   $(document).ready(function() {
     $('.my-edit-btn').click(function() {
@@ -288,7 +328,7 @@
 
       // var v = $(event.target).parent().siblings(".my-authorID").text();
       // $("#modal-edit-authorName").find(`[value=${v}]`).attr("selected", "selected");
-      $("#modal-edit-authorName").find(`[value=${v["authorID"]}]`).attr("selected", "selected");
+      $("#modal-edit-authorName").find(`[value=${v["authorid"]}]`).attr("selected", "selected");
 
       // var v = $(event.target).parent().siblings(".my-edition").text();
       // $("#modal-edit-edition").val(v);
@@ -318,14 +358,68 @@
       let itr = v['booktype'].length;
       for (let i of v['booktype']) {
         if (--itr) {
-          t+=i+", ";
-        }
-        else {
-          t+=i;
+          t += i + ", ";
+        } else {
+          t += i;
         }
       }
 
       $("#modal-edit-bookType").val(t);
+    });
+
+
+    $('.my-offer-btn').click(function() {
+      var v = $(event.currentTarget).data();
+      console.log($('#my-offer-' + v['offerid']));
+      console.log(v['offerid']);
+      $('#my-offer-' + v['offerid']).attr("checked", "checked");
+      $('#modal-offer-ISBN').val(v['isbn']);
+      $('#offermodalLabel > b').text(v['bookname']);
+      // if(v['offerid'] !== '-1') {
+      //
+      // } // try using selector.removeAttr(checked) at dismiss
+
+
+
+    });
+
+
+    $('#editModal').on('hidden.bs.modal', function(e) {
+      $('#modal-edit-authorName').children().removeAttr('selected');
+      $('#modal-edit-publisherName').children().removeAttr('selected');
+
+      $("#modal-edit-ISBN").removeAttr('value');
+
+
+
+      $("#modal-edit-bookName").removeAttr('value');
+
+
+      $("#modal-edit-edition").removeAttr('value');
+
+
+      $("#modal-edit-releaseDate").removeAttr('value');
+
+
+      $("#modal-edit-price").removeAttr('value');
+
+
+      $("#modal-edit-pageCount").removeAttr('value');
+
+
+      $("#modal-edit-quantity").removeAttr('value');
+
+
+      $("#modal-edit-bookType").removeAttr('value');
+    });
+
+    $('#offerModal').on('hidden.bs.modal', function(e) {
+      $("#modal-offer-ISBN").removeAttr('value');
+      $("#offerBookForm > div > div > input").removeAttr('checked');
+    });
+
+    $('#modal-offer-revoke-order-btn').click(function() {
+      $("#offerBookForm > div > div > input").removeAttr('checked');
     });
   });
 </script>
