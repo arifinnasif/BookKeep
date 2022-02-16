@@ -60,26 +60,26 @@ class AdminCustomerListView(View):
 
         return render(request, 'admin_panel_customer_list.html', context)
 
-class BookInfoModel:
-    def __init__(self, row):
-        self.ISBN           = row[0]
-        self.bookName       = row[1]
-        self.authorName     = row[2]
-        if row[3] is None:
-            self.edition        = ""
-        else:
-            self.edition        = row[3]
-        if row[4] is None:
-            self.releaseDate    = ""
-        else:
-            self.releaseDate    = row[4].strftime('%Y-%m-%d')
-        self.price          = row[5]
-        self.pageCount      = row[6]
-        self.quantity       = row[7]
-        self.publisherName  = row[8]
-
-        self.authorID       = row[9]
-        self.publisherID    = row[10]
+# class BookInfoModel:
+#     def __init__(self, row):
+#         self.ISBN           = row[0]
+#         self.bookName       = row[1]
+#         self.authorName     = row[2]
+#         if row[3] is None:
+#             self.edition        = ""
+#         else:
+#             self.edition        = row[3]
+#         if row[4] is None:
+#             self.releaseDate    = ""
+#         else:
+#             self.releaseDate    = row[4].strftime('%Y-%m-%d')
+#         self.price          = row[5]
+#         self.pageCount      = row[6]
+#         self.quantity       = row[7]
+#         self.publisherName  = row[8]
+#
+#         self.authorID       = row[9]
+#         self.publisherID    = row[10]
 
 
 
@@ -87,11 +87,15 @@ class AdminBookListView(View):
     @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
-        sql = """SELECT ISBN, B.NAME, A.NAME, B.EDITION, B.RELEASE_DATE, B.PRICE, B.PAGE_COUNT, B.QUANTITY, P.NAME, AUTHOR_ID, PUBLISHER_ID
+        sql = """SELECT ISBN, B.NAME, A.NAME, B.EDITION, B.RELEASE_DATE, B.PRICE, B.PAGE_COUNT, B.QUANTITY, P.NAME, AUTHOR_ID, PUBLISHER_ID, OFB.OFB_OFFER_ID
                 FROM BOOKS B
                 LEFT OUTER JOIN WRITES USING (ISBN)
                 LEFT OUTER JOIN AUTHORS A USING (AUTHOR_ID)
-                LEFT OUTER JOIN PUBLISHERS P USING (PUBLISHER_ID)"""
+                LEFT OUTER JOIN PUBLISHERS P USING (PUBLISHER_ID)
+                LEFT OUTER JOIN (SELECT ISBN, OFB1.OFFER_ID AS OFB_OFFER_ID
+                                FROM OFFER_BOOK OFB1 INNER JOIN OFFERS O ON (OFB1.OFFER_ID = O.OFFER_ID)
+                                WHERE O.START_DATE>=SYSDATE - O.PERIOD) OFB USING (ISBN)
+                """
         cursor.execute(sql)
         result = cursor.fetchall()
         cursor.close()
@@ -99,8 +103,36 @@ class AdminBookListView(View):
 
 
         bookInfo = []
-        for r in result:
-            bookInfo.append(BookInfoModel(r))
+        for row in result:
+            cursor = connection.cursor()
+            sql = """SELECT B_TYPE
+                    FROM BOOK_TYPE WHERE ISBN=%s"""
+            cursor.execute(sql, [row[0]])
+            result2 = cursor.fetchall()
+            cursor.close()
+
+            bookType = []
+
+            for r2 in result2:
+                bookType.append(r2[0])
+
+            bookInfo.append(
+                {
+                    "ISBN"           : row[0],
+                    "bookName"       : row[1],
+                    "authorName"     : row[2],
+                    "edition"        : "" if row[3] is None else row[3],
+                    "releaseDate"    : "" if row[4] is None else row[4].strftime('%Y-%m-%d'),
+                    "price"          : row[5],
+                    "pageCount"      : row[6],
+                    "quantity"       : row[7],
+                    "publisherName"  : row[8],
+                    "bookType"       : bookType,
+                    "authorID"       : row[9],
+                    "publisherID"    : row[10],
+                    "offerID"        : row[11],
+                }
+            )
 
         cursor = connection.cursor()
         sql = """SELECT AUTHOR_ID, NAME
@@ -116,10 +148,19 @@ class AdminBookListView(View):
         publisherList = cursor.fetchall()
         cursor.close()
 
+        cursor = connection.cursor()
+        sql = """SELECT OFFER_ID, NAME
+                FROM OFFERS
+                WHERE START_DATE >= SYSDATE - PERIOD"""
+        cursor.execute(sql)
+        offerList = cursor.fetchall()
+        cursor.close()
+
         context = {
             "bookInfo" : bookInfo,
             "authorList" : authorList,
             "publisherList" : publisherList,
+            "offerList" : offerList,
         }
 
         return render(request, 'admin_panel_book_list.html', context)
@@ -128,9 +169,25 @@ class AdminBookListView(View):
     def post(self, request):
         post_type       = request.POST.get("post_type")
         isbn            = request.POST.get("ISBN")
+
+        if post_type == 'offer':
+            offerID = request.POST.get('offerID')
+            # print(isbn, offerID)
+            cursor = connection.cursor()
+            cursor.callproc("UPDATE_OFFER_BOOK_INFO",
+                                [isbn, offerID,])
+            cursor.close()
+            return redirect('admin-book-list-view')
+
+
+
+
+
+
         bookName        = request.POST.get("bookName")
         edition         = request.POST.get("edition")
         releaseDate     = datetime.datetime.strptime(request.POST.get("releaseDate"), '%Y-%m-%d')
+        bookType        = request.POST.get("bookType").split(",")
         try:
             if request.POST.get("authorID") is None or len(request.POST.get("authorID")) == 0:
                 messages.error('Provide an Author Name')
@@ -169,6 +226,33 @@ class AdminBookListView(View):
             cursor.callproc("UPDATE_BOOK_INFO",
                                 [isbn, bookName, authorID, edition, releaseDate, price, pageCount, quantity, publisherID,])
             cursor.close()
+
+            cursor = connection.cursor()
+            sql =   """
+                    DELETE FROM BOOK_TYPE
+                    WHERE ISBN = %s
+                    """
+            cursor.execute(sql, [isbn])
+            cursor.close()
+
+
+
+            for i2 in bookType:
+                cursor = connection.cursor()
+                sql =   """
+                        INSERT INTO BOOK_TYPE
+                            (
+                                ISBN,
+                                B_TYPE
+                            )
+                        VALUES
+                            (
+                                %s,
+                                %s
+                            )
+                        """
+                cursor.execute(sql, [isbn, i2.strip()])
+                cursor.close()
             messages.success(request, 'Successfully updated')
         elif post_type == "add":
             cursor = connection.cursor()
@@ -184,6 +268,23 @@ class AdminBookListView(View):
             cursor.callproc("INSERT_BOOK_INFO",
                                 [isbn, bookName, authorID, edition, releaseDate, price, pageCount, quantity, publisherID,])
             cursor.close()
+
+            for i2 in bookType:
+                cursor = connection.cursor()
+                sql =   """
+                        INSERT INTO BOOK_TYPE
+                            (
+                                ISBN,
+                                B_TYPE
+                            )
+                        VALUES
+                            (
+                                %s,
+                                %s
+                            )
+                        """
+                cursor.execute(sql, [isbn, i2.strip()])
+                cursor.close()
             messages.success(request, 'Successfully added')
 
         if uploaded_pic is not None:
@@ -609,3 +710,14 @@ class AdminPublisherListView(View):
 
 
         return redirect('admin-publisher-list-view')
+
+
+
+
+# class Test(View):
+#     def get(self, request):
+#         return render(request, 'test.html')
+#     def post(self, request):
+#         print(type(request.POST.getlist('sample[]')))
+#         print(request.POST.getlist('sample[]'))
+#         return render(request, 'test.html')
