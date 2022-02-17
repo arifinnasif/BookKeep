@@ -36,15 +36,15 @@
                         My Cart
                     </a>
                 </li>
-                <!-- <li>
-                    <a id="book-list" href="/manage/book-list/"
+                <li>
+                    <a id="book-list" href="{% url 'user-profile-orders' cid=username %}"
                         class="nav-link text-white {% block book-list-anchor-class %}{% endblock %}">
                         <svg class="bi me-2" width="16" height="16">
                             <use xlink:href="#speedometer2" />
                         </svg>
-                        Book List
+                        My Orders
                     </a>
-                </li> -->
+                </li>
                 <!-- <li>
                     <a id="author-list" href="/manage/author-list/"
                         class="nav-link text-white {% block author-list-anchor-class %}{% endblock %}">
