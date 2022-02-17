@@ -3,17 +3,21 @@ from django.db import connection
 from django.views import View
 from django.contrib import messages
 
+from custom_utils import check_if_anonymous
+
 import datetime
 
 
 # Create your views here.
 class CustomerLoginView(View):
+    @check_if_anonymous
     def get(self, request):
         context = {
             'usertype' : 'Customer',
         }
         return render(request, "login.html", context)
 
+    @check_if_anonymous
     def post(self, request):
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -44,20 +48,22 @@ class CustomerLogoutView(View):
         return redirect('homepage')
 
 
-def show_login_page(request):
-    context = {
-        'usertype' : 'Customer',
-    }
-    return render(request, "login.html", context)
+# def show_login_page(request):
+#     context = {
+#         'usertype' : 'Customer',
+#     }
+#     return render(request, "login.html", context)
 
 
 class ManagerLoginView(View):
+    @check_if_anonymous
     def get(self, request):
         context = {
             'usertype' : 'Manager',
         }
         return render(request, "login.html", context)
 
+    @check_if_anonymous
     def post(self, request):
         username = request.POST.get("username")
         password = request.POST.get("password")
@@ -80,9 +86,11 @@ class ManagerLoginView(View):
 
 
 class CustomerRegistrationView(View):
+    @check_if_anonymous
     def get(self, request):
         return render(request, 'customer_registration.html')
 
+    @check_if_anonymous
     def post(self, request):
         print(request.POST)
         fullname = request.POST.get('fullname')

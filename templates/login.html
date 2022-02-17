@@ -41,6 +41,10 @@
 
     <button type="submit" class="btn btn-primary">Submit</button>
   </form>
+  <br>
+  {% if usertype == 'Customer' %}
+  <p class="text-secondary small"><i>Don't have an account? <a href="/registration/">Register</a> for free</i></p>
+  {% endif %}
 </div>
 
 
