@@ -690,6 +690,7 @@ class AdminPublisherListView(View):
 
 
 class AdminOfferListView(View):
+    @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
         sql =   """
@@ -745,6 +746,7 @@ class AdminOfferListView(View):
 
         return render(request, 'admin_panel_offer_list.html', context)
 
+    @check_if_authorized_manager
     def post(self, request):
         print(request.POST)
         post_type = request.POST.get('post_type')
