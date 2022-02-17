@@ -28,6 +28,15 @@ def show_profile(request, cid):
 
     return render(request, 'user_profile.html', context)
 
+class AccountInfo:
+    def __init__(self, row):
+        self.username = row[0]
+        self.password = row[1]
+        self.fullname = row[2]
+        self.fulladdress = row[3]
+        self.email = row[4]
+        self.accountCreationDate = row[5].strftime("%d %B %Y")
+
 
 class BookInTheCart:
     def __init__(self, entry):
@@ -167,7 +176,7 @@ class MyOrderView(View):
             messages.error(request, 'You Haven\'t Ordered Any Book Yet!')
         else:
             for r in result:
-                print(r)
+                # print(r)
                 if r[-1] is None:   # the order is still pending 
                     pending_list.append(BookOrderList(r))
                 else:
@@ -188,7 +197,7 @@ class MyOrderView(View):
                     completed_dict[i.oid] = [values, totalprice]
                 else:
                     values = completed_dict[i.oid][0]
-                    print(values)
+                    # print(values)
                     totalprice = completed_dict[i.oid][1]
                     totalprice = totalprice + float(i.price)
                     values.append(i)
@@ -228,3 +237,47 @@ class MyOrderView(View):
         }
         
         return render(request, 'user_profile_orders.html', context)
+
+class MyAccountView(View):
+    def get(self, request, cid):
+
+        cursor = connection.cursor()
+        sql = """SELECT *
+                FROM CUSTOMERS C 
+                WHERE CUSTOMER_ID = %s"""
+        cursor.execute(sql, [cid])
+        result = cursor.fetchall()
+        cursor.close()
+        print(result)
+
+        accountInfo = []
+        if len(result) == 0:
+            messages.error("Something Went Wrong. This Account Doesn't Exist!")
+        else:
+            for r in result:
+                accountInfo.append(AccountInfo(r))
+
+        
+
+        userfullname = None
+        if request.session.get('usertype') == 'customer':
+            cursor = connection.cursor()
+            sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+            cursor.execute(sql, [request.session.get('username', default='guest')])
+            result = cursor.fetchall()
+            cursor.close()
+            userfullname = result[0][0]
+
+        username = request.session.get('username')
+        usertype = request.session.get('usertype', default='guest')
+
+        context = {
+            "userfullname": userfullname,
+            "username": username,
+            "usertype": usertype,
+            "accountInfo": accountInfo,
+        }
+
+        return render(request, 'user_profile_account.html', context)
+
+        
