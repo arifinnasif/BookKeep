@@ -35,7 +35,6 @@ class CustomerInfoModel:
             self.membershipBoughtOn = row[5].strftime('%Y-%m-%d %H:%M:%S')
 
 
-
 class AdminCustomerListView(View):
     @check_if_authorized_manager
     def get(self, request):
@@ -59,28 +58,6 @@ class AdminCustomerListView(View):
         }
 
         return render(request, 'admin_panel_customer_list.html', context)
-
-# class BookInfoModel:
-#     def __init__(self, row):
-#         self.ISBN           = row[0]
-#         self.bookName       = row[1]
-#         self.authorName     = row[2]
-#         if row[3] is None:
-#             self.edition        = ""
-#         else:
-#             self.edition        = row[3]
-#         if row[4] is None:
-#             self.releaseDate    = ""
-#         else:
-#             self.releaseDate    = row[4].strftime('%Y-%m-%d')
-#         self.price          = row[5]
-#         self.pageCount      = row[6]
-#         self.quantity       = row[7]
-#         self.publisherName  = row[8]
-#
-#         self.authorID       = row[9]
-#         self.publisherID    = row[10]
-
 
 
 class AdminBookListView(View):
@@ -712,6 +689,151 @@ class AdminPublisherListView(View):
         return redirect('admin-publisher-list-view')
 
 
+class AdminOfferListView(View):
+    def get(self, request):
+        cursor = connection.cursor()
+        sql =   """
+                SELECT OFFER_ID, NAME, DISCOUNT_PCT, START_DATE, PERIOD
+                FROM OFFERS
+                """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        upcomingOfferInfo = []
+        ongoingOfferInfo = []
+        pastOfferInfo = []
+        for r in result:
+            cursor = connection.cursor()
+            sql =   """
+                    SELECT B.NAME
+                    FROM OFFER_BOOK OB INNER JOIN BOOKS B USING (ISBN)
+                    WHERE OB.OFFER_ID = %s
+                    """
+            cursor.execute(sql,[int(r[0])])
+            result2 = cursor.fetchall()
+            cursor.close()
+
+            books_with_this_offer = []
+            for r2 in result2:
+                books_with_this_offer.append(r2[0])
+
+            temp_dict = {
+                "offerID" : r[0],
+                "offerName" : r[1],
+                "discount_pct" : r[2]*100,
+                "start_date" : r[3].strftime('%Y-%m-%d'),
+                "period" : r[4],
+                "books_with_this_offer" : books_with_this_offer,
+            }
+
+            if r[3] > datetime.datetime.now():
+                upcomingOfferInfo.append(temp_dict)
+            elif r[3]+datetime.timedelta(days = int(r[4])) < datetime.datetime.now():
+                pastOfferInfo.append(temp_dict)
+            else:
+                ongoingOfferInfo.append(temp_dict)
+
+
+
+
+        context = {
+            "upcomingOfferInfo" : upcomingOfferInfo,
+            "ongoingOfferInfo" : ongoingOfferInfo,
+            "pastOfferInfo" : pastOfferInfo,
+        }
+
+        return render(request, 'admin_panel_offer_list.html', context)
+
+    def post(self, request):
+        print(request.POST)
+        post_type = request.POST.get('post_type')
+        if post_type == 'delete':
+            offerID = request.POST.get('offerID')
+
+            if offerID is None:
+                messages.error(request, 'Cannot perform delete operation')
+                return redirect('admin-offer-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                SELECT COUNT(*)
+                FROM OFFERS
+                WHERE OFFER_ID = %s AND START_DATE > %s
+                """
+            cursor.execute(sql, [offerID, datetime.datetime.now()])
+            result = cursor.fetchall()
+            cursor.close()
+
+            if int(result[0][0]) == 0:
+                messages.error(request, 'Cannot delete an offer that has already started')
+                return redirect('admin-offer-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                    DELETE FROM OFFERS WHERE OFFER_ID = %s
+                    """
+            cursor.execute(sql, [offerID])
+            messages.success(request, 'Successfully deleted')
+            cursor.close()
+            return redirect('admin-offer-list-view')
+
+
+        offerName = request.POST.get('offerName')
+        discount_pct = request.POST.get('discount_pct')
+        start_date = request.POST.get('start_date')
+        period = request.POST.get('period')
+
+        if offerName is None or discount_pct is None or start_date is None or period is None:
+            messages.error(request, 'No field can be blank')
+            return redirect('admin-offer-list-view')
+
+        try:
+            discount_pct = float(discount_pct)
+            if discount_pct <=0 or discount_pct > 100:
+                raise ValueError;
+            discount_pct = discount_pct/100;
+        except ValueError:
+            messages.error(request, 'Provide a valid discount rate')
+            return redirect('admin-offer-list-view')
+
+        try:
+            period = int(period)
+            if period <= 0:
+                raise ValueError;
+        except ValueError:
+            messages.error(request, 'Provide a valid period')
+            return redirect('admin-offer-list-view')
+
+        if datetime.datetime.strptime(start_date, '%Y-%m-%d') <=datetime.datetime.now():
+            messages.error(request, 'Offer cannot have a start date in the past')
+            return redirect('admin-offer-list-view')
+
+        if post_type == 'edit':
+            offerID = request.POST.get('offerID')
+            if offerID is None:
+                messages.error(request, 'No field can be blank')
+                return redirect('admin-offer-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                    UPDATE OFFERS SET NAME = %s, DISCOUNT_PCT = %s, START_DATE = TO_DATE(%s, 'yyyy-mm-dd'), PERIOD = %s
+                    WHERE OFFER_ID = %s
+                    """
+            cursor.execute(sql, [offerName, discount_pct, start_date, period, offerID])
+            messages.success(request, 'Successfully updated')
+            cursor.close()
+
+        elif post_type == 'add':
+            cursor = connection.cursor()
+            sql =   """
+                    INSERT INTO OFFERS (NAME, DISCOUNT_PCT, START_DATE, PERIOD) VALUES(%s, %s, TO_DATE(%s, 'yyyy-mm-dd'), %s)
+                    """
+            cursor.execute(sql, [offerName, discount_pct, start_date, period])
+            messages.success(request, 'Successfully added')
+            cursor.close()
+
+        return redirect('admin-offer-list-view')
 
 
 # class Test(View):

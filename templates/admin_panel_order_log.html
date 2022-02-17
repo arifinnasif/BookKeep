@@ -28,10 +28,10 @@
       <td>{{row.orderingDate}}</td>
       <td>
         <div class="dropdown">
-          <button class="btn btn-outline-dark dropdown-toggle" type="button" id="{{orderID}}-dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+          <button class="btn btn-outline-dark dropdown-toggle" type="button" id="{{row.orderID}}-dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
             Details
           </button>
-          <ul class="dropdown-menu" aria-labelledby="{{orderID}}-dropdownMenuButton1">
+          <ul class="dropdown-menu" aria-labelledby="{{row.orderID}}-dropdownMenuButton1">
             {% for item in row.items %}
             <li><span class="dropdown-item">{{item.bookName}} ({{item.quantity}})</span></li>
             {% endfor %}
