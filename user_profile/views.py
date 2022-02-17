@@ -39,16 +39,18 @@ class BookInTheCart:
 
 class BookOrderList:
     def __init__(self, entry):
+        self.totalprice = 0
         self.oid = entry[0]
         self.isbn = entry[1]
         self.bookName = entry[2]
         self.unitprice = entry[3]
         self.quantity = entry[4]
+        self.price = self.unitprice * self.quantity
         self.orderdate = entry[5].strftime("%d %B %Y")
         if entry[6] is None:
             self.deliverydate = ""
         else:
-            self.deliverydate = entry[6].strftime("%d %B %Y")        
+            self.deliverydate = entry[6].strftime("%d %B %Y")     
 
 
 class MyCartView(View):
@@ -145,6 +147,8 @@ class MyCartView(View):
             connection.close()
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+
+
 class MyOrderView(View):
     def get(self, request, cid):
 
@@ -157,7 +161,7 @@ class MyOrderView(View):
         cursor.execute(sql, [cid])
         result = cursor.fetchall()
 
-        order_list = []
+        completed_list = []
         pending_list = []
         if len(result) == 0:
             messages.error(request, 'You Haven\'t Ordered Any Book Yet!')
@@ -167,12 +171,41 @@ class MyOrderView(View):
                 if r[-1] is None:   # the order is still pending 
                     pending_list.append(BookOrderList(r))
                 else:
-                    order_list.append(BookOrderList(r))
+                    completed_list.append(BookOrderList(r))
             
-            if len(order_list) == 0:
+            if len(completed_list) == 0:
                 messages.error(request, 'You Don\'t Have Any Completed Order!')
             if len(pending_list) == 0:
                 messages.error(request, 'You Don\'t Have Any Pending Order!')
+
+            completed_dict = {}
+            pending_dict = {}
+            for i in completed_list:
+                if i.oid not in completed_dict.keys():
+                    values = []
+                    totalprice = float(i.price)
+                    values.append(i)
+                    completed_dict[i.oid] = [values, totalprice]
+                else:
+                    values = completed_dict[i.oid][0]
+                    print(values)
+                    totalprice = completed_dict[i.oid][1]
+                    totalprice = totalprice + float(i.price)
+                    values.append(i)
+                    completed_dict[i.oid] = [values,totalprice]
+            
+            for i in pending_list:
+                if i.oid not in pending_dict.keys():
+                    values = []
+                    totalprice = float(i.price)
+                    values.append(i)
+                    pending_dict[i.oid] = [values, totalprice]
+                else:
+                    values = pending_dict[i.oid][0]
+                    totalprice = pending_dict[i.oid][1]
+                    totalprice = totalprice + float(i.price)
+                    values.append(i)
+                    pending_dict[i.oid] = [values,totalprice]
 
         
         userfullname = None
@@ -190,8 +223,8 @@ class MyOrderView(View):
             "userfullname": userfullname,
             "username": username,
             "usertype": usertype,
-            "order": order_list,
-            "pending": pending_list,
+            "completed": completed_dict,
+            "pending": pending_dict,
         }
         
         return render(request, 'user_profile_orders.html', context)
