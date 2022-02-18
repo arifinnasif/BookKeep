@@ -8,45 +8,50 @@
     right: 1rem;
   }
 
-  .jumbotron {
+  .login {
     width: 60%;
-    height: 60%;
+    height: 50%;
     align-items: center;
     margin-left: 20%;
     margin-right: 20%;
     margin-top: 10%;
     margin-bottom: 20%;
+  }
+
+  .jumbotron {
     border-radius: 2;
     border: solid;
   }
 </style>
 
-<h2>{{usertype}}</h2>
 
-<div class="jumbotron p-3 mb-2 rounded-3">
-  {% if usertype == 'Customer' %}
-  <form action="{% url 'customer-login-view' %}" method='post'>
-  {% elif usertype == 'Manager' %}
-  <form action="{% url 'manager-login-view' %}" method='post'>
-  {% endif %}
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="username" class="form-label">Username</label>
-      <input type="text" class="form-control" id="username" name="username">
-    </div>
-    <div class="mb-3">
-      <label for="password" class="form-label">Password</label>
-      <input type="password" class="form-control" id="password" name="password">
-    </div>
+<div class="login">
+  <h2 align="center" class="pt-4 pb-4 mt-4 mb-4">{{usertype}} Login</h2>
 
-    <button type="submit" class="btn btn-primary">Submit</button>
-  </form>
-  <br>
-  {% if usertype == 'Customer' %}
-  <p class="text-secondary small"><i>Don't have an account? <a href="/registration/">Register</a> for free</i></p>
-  {% endif %}
+  <div class="jumbotron p-3 mb-2 rounded-3">
+    {% if usertype == 'Customer' %}
+    <form action="{% url 'customer-login-view' %}" method='post'>
+      {% elif usertype == 'Manager' %}
+      <form action="{% url 'manager-login-view' %}" method='post'>
+        {% endif %}
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="username" class="form-label">Username</label>
+          <input type="text" class="form-control" id="username" name="username">
+        </div>
+        <div class="mb-3">
+          <label for="password" class="form-label">Password</label>
+          <input type="password" class="form-control" id="password" name="password">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+      <br>
+      {% if usertype == 'Customer' %}
+      <p class="text-secondary small"><i>Don't have an account? <a href="/registration/">Register</a> for free</i></p>
+      {% endif %}
+  </div>
 </div>
-
 
 <div class="toast-container">
   {% for message in messages %}

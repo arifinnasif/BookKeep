@@ -1,0 +1,73 @@
+{% extends 'user_profile.html' %}
+{% load static %}
+
+{% block my-account-anchor-class %}active{% endblock %}
+
+{% block user-profile-content-block %}
+
+<header class="pb-3 mb-4 border-bottom">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-dismissible alert-success">
+        <button type="button" class="close" data-dismiss="alert">
+            ×
+        </button>
+        <strong>{{message}}</strong>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <a href="#" class="d-flex align-items-center text-dark text-decoration-none">
+        <span class="fs-4">
+            <h1>My Account Information</h1>
+        </span>
+    </a>
+</header>
+
+{% for i in accountInfo %}
+
+<div class="col-lg-16">
+    <div class="row">
+        <div class="col">
+
+            <div class="card shadow mb-3 fs-5" id="show_form_personal">
+                <!-- <div class="card-header py-3">
+                    <h5 class="text-primary m-0 font-weight-bold">Personal Information</h5>
+                </div> -->
+                <div class="card-body">
+
+                    <div class="form-group">
+                        <label for="username"><strong>Username</strong></label>
+                        <p>{{ i.username }}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="first_name"><strong>Full Name</strong></label>
+                        <p>{{ i.fullname }}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email"><strong>Email Address</strong></label>
+                        <p>{{ i.email }}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email"><strong>Full Address</strong></label>
+                        <p>{{ i.fulladdress }}</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email"><strong>Contact Number</strong></label>
+                        {% for j in i.contact %}
+                        <p>{{ j }}</p>
+                        {% endfor %}
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

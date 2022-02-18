@@ -74,7 +74,13 @@ e
     <a class="nav-link" aria-current="page" href="{% url 'user-profile' cid=username %}">My Profile</a>
   </li>
   <li class="nav-item">
+    <a class="nav-link" href="{% url 'user-profile-account' cid=username %}">My Account</a>
+  </li>
+  <li class="nav-item">
     <a class="nav-link" href="{% url 'user-profile-cart' cid=username %}">My Cart</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'user-profile-orders' cid=username %}">My Orders</a>
   </li>
   <li>
     <a class="nav-link" href="{% url 'customer-logout-view' %}">Log out</a>

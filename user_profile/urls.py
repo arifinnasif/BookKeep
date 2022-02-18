@@ -6,4 +6,5 @@ urlpatterns = [
     path('user/<cid>', views.show_profile, name = 'user-profile'),
     path('user/<cid>/my-cart/', views.MyCartView.as_view(), name= 'user-profile-cart'),
     path('user/<cid>/my-orders/', views.MyOrderView.as_view(), name= 'user-profile-orders'),
+    path('user/<cid>/my-account/', views.MyAccountView.as_view(), name= 'user-profile-account'),
 ]
