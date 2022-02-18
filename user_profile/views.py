@@ -1,8 +1,10 @@
+from msilib.schema import Error
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.db import connection
 from django.views import View
 from django.contrib import messages
 import datetime
+
 
 # Create your views here.
 
@@ -80,11 +82,13 @@ class MyCartView(View):
         userfullname = None
         if request.session.get('usertype') == 'customer':
             cursor = connection.cursor()
-            sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+            sql = "SELECT NAME, ADDRESS FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
             cursor.execute(sql, [request.session.get('username', default='guest')])
             result = cursor.fetchall()
             cursor.close()
             userfullname = result[0][0]
+            useraddress = result[0][1]
+            # print(useraddress)
 
         ####### OFFER CHECK #########
 
@@ -150,7 +154,7 @@ class MyCartView(View):
 
         for r in result:
             val = [i for i in r]
-            print(val)
+            # print(val)
             for j in ongoingOfferInfo:
                 if val[0] in j['books_with_this_offer']:
                     # per book discount
@@ -171,9 +175,6 @@ class MyCartView(View):
         # print(user_cart)
         checkout_cart.append(CheckoutCart(subtotal, total))
 
-        
-        
-
         username = request.session.get('username')
         usertype = request.session.get('usertype', default='guest')
 
@@ -184,6 +185,7 @@ class MyCartView(View):
             "cart": user_cart,
             "checkout": checkout_cart,
             "offerInfo": ongoingOfferInfo,
+            "useraddress": useraddress,
         }
 
         return render(request, 'user_profile_cart.html', context)
@@ -226,7 +228,7 @@ class MyCartView(View):
         elif request.POST.get('post_type') == 'delete':
             try:
                 isbn = str(request.POST.get('isbn'))
-                print(isbn)
+                # print(isbn)
             except ValueError:
                 messages.error(request, 'Something went wrong. Please try again!')
                 return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))  
@@ -239,12 +241,47 @@ class MyCartView(View):
             messages.info(request, 'Item Deleted Successfully!')
             connection.close()
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+        
+        elif request.POST.get('post_type') == 'order':
+            try:
+                # print(username)
+                cursor = connection.cursor()
+                # return_msg = cursor.var(int).var
+                # cursor.callproc('CHECK_BOOK_STOCK', [username, return_msg])
+                # flag = return_msg.getvalue()
+                # print(flag)
+                sql = """SELECT * FROM CARTS WHERE CUSTOMER_ID = %s"""
+                cursor.execute(sql, [cid])
+                result = cursor.fetchall()
+                cursor.close()
+                for r in result:
+                    # print(r[2])
+                    cursor = connection.cursor()
+                    sql = """SELECT QUANTITY, NAME FROM BOOKS WHERE ISBN = %s"""
+                    
+                    cursor.execute(sql,[r[1]])
+                    result2 = cursor.fetchall()
+                    stock = result2[0][0]
+                    bookname = result2[0][1]
+                    cursor.close()
+                    # print(stock)
+                    if int(stock) < int(r[2]):
+                        messages.error(request, 'The Book  "' + str(bookname)+ '" is Out of Stock! Please Check Out the Available Quantity ')
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+                cursor = connection.cursor()
+                cursor.callproc('MAKE_ORDER', [cid, datetime.datetime.now()])
+                cursor.close()
+                messages.info(request, 'Order Placed Successfully!')
+            except Exception as e:
+                print(e)
+                messages.error(request, 'Could not complete placing order. Please try again!')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
 
 
 
 class MyOrderView(View):
     def get(self, request, cid):
-
         cursor = connection.cursor()
         sql = """SELECT ORDER_ID, ISBN, B.NAME BOOK, OB.UNIT_PRICE, OB.QUANTITY, O.ORDERING_DATE, O.DELIVERY_DATE
                 FROM ORDERS O
