@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.db import connection
 from django.views import View
 from django.contrib import messages
-
+import datetime
 
 # Create your views here.
 
@@ -46,6 +46,17 @@ class BookInTheCart:
         self.authorName = entry[2]
         self.quantity = entry[3]
         self.price = entry[4]
+        self.discounted_price = entry[5]
+
+
+class CheckoutCart:
+    def __init__(self, subtotal, total):
+        self.subtotal = "{:.2f}".format(round(subtotal, 2))
+        self.deliveryfee = "50.00"
+        self.total = "{:.2f}".format(round(total + float(self.deliveryfee), 2))
+        self.discount = "{:.2f}".format(round(subtotal-total, 2))
+
+
 
 class BookOrderList:
     def __init__(self, entry):
@@ -75,6 +86,49 @@ class MyCartView(View):
             cursor.close()
             userfullname = result[0][0]
 
+        ####### OFFER CHECK #########
+
+        cursor = connection.cursor()
+        sql =   """
+                SELECT OFFER_ID, NAME, DISCOUNT_PCT, START_DATE, PERIOD
+                FROM OFFERS
+                """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        ongoingOfferInfo = []
+        for r in result:
+            cursor = connection.cursor()
+            sql =   """
+                    SELECT ISBN
+                    FROM OFFER_BOOK OB INNER JOIN BOOKS B USING (ISBN)
+                    WHERE OB.OFFER_ID = %s
+                    """
+            cursor.execute(sql,[int(r[0])])
+            result2 = cursor.fetchall()
+            cursor.close()
+
+            books_with_this_offer = []
+            for r2 in result2:
+                books_with_this_offer.append(r2[0])
+
+            temp_dict = {
+                "offerID" : r[0],
+                "offerName" : r[1],
+                "discount_pct" : r[2],
+                "start_date" : r[3].strftime('%Y-%m-%d'),
+                "period" : r[4],
+                "books_with_this_offer" : books_with_this_offer,
+            }
+
+            if r[3] < datetime.datetime.now() and r[3]+datetime.timedelta(days = int(r[4])) > datetime.datetime.now():
+                ongoingOfferInfo.append(temp_dict)
+        # print(ongoingOfferInfo)
+
+
+        ####### BOOK FETCH #########
+
         cursor = connection.cursor()
         sql = """SELECT ISBN, B.NAME BOOK, A.NAME AUTHOR, C.QUANTITY, B.PRICE
                 FROM CARTS C
@@ -90,8 +144,35 @@ class MyCartView(View):
             messages.error(request, 'Your Cart is Empty!')
         
         user_cart = []
+        checkout_cart = []
+        subtotal = 0
+        total = 0
+
         for r in result:
-            user_cart.append(BookInTheCart(r))
+            val = [i for i in r]
+            print(val)
+            for j in ongoingOfferInfo:
+                if val[0] in j['books_with_this_offer']:
+                    # per book discount
+                    discount = float(val[4]) * float(j['discount_pct']) 
+                    # discounted price per book
+                    val.append("{:.2f}".format(round((float(val[4]) - discount), 2)))
+                else:
+                    discount = 0.00
+                    val.append(val[4])  # same price as before
+            
+            price = float(val[4])*int(val[3])
+            discount = discount*int(val[3])
+            subtotal = subtotal + price
+            total = total + (price - discount)
+
+            user_cart.append(BookInTheCart(val))
+
+        # print(user_cart)
+        checkout_cart.append(CheckoutCart(subtotal, total))
+
+        
+        
 
         username = request.session.get('username')
         usertype = request.session.get('usertype', default='guest')
@@ -101,6 +182,8 @@ class MyCartView(View):
             "username": username,
             "usertype": usertype,
             "cart": user_cart,
+            "checkout": checkout_cart,
+            "offerInfo": ongoingOfferInfo,
         }
 
         return render(request, 'user_profile_cart.html', context)
@@ -173,6 +256,9 @@ class MyOrderView(View):
 
         completed_list = []
         pending_list = []
+        completed_dict = {}
+        pending_dict = {}
+        
         if len(result) == 0:
             messages.error(request, 'You Haven\'t Ordered Any Book Yet!')
         else:
@@ -188,8 +274,7 @@ class MyOrderView(View):
             if len(pending_list) == 0:
                 messages.error(request, 'You Don\'t Have Any Pending Order!')
 
-            completed_dict = {}
-            pending_dict = {}
+            
             for i in completed_list:
                 if i.oid not in completed_dict.keys():
                     values = []
@@ -248,8 +333,10 @@ class MyAccountView(View):
                 WHERE CUSTOMER_ID = %s"""
         cursor.execute(sql, [cid])
         result = cursor.fetchall()
+        cursor.close()
         # print(result)
-
+        
+        cursor = connection.cursor()
         sql = """SELECT CONTACT_NUMBER
                 FROM CUSTOMER_CONTACT_NUMBER 
                 WHERE CUSTOMER_ID = %s"""
