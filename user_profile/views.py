@@ -29,13 +29,14 @@ def show_profile(request, cid):
     return render(request, 'user_profile.html', context)
 
 class AccountInfo:
-    def __init__(self, row):
+    def __init__(self, row, contact):
         self.username = row[0]
         self.password = row[1]
         self.fullname = row[2]
         self.fulladdress = row[3]
         self.email = row[4]
         self.accountCreationDate = row[5].strftime("%d %B %Y")
+        self.contact = contact
 
 
 class BookInTheCart:
@@ -247,15 +248,28 @@ class MyAccountView(View):
                 WHERE CUSTOMER_ID = %s"""
         cursor.execute(sql, [cid])
         result = cursor.fetchall()
+        # print(result)
+
+        sql = """SELECT CONTACT_NUMBER
+                FROM CUSTOMER_CONTACT_NUMBER 
+                WHERE CUSTOMER_ID = %s"""
+        cursor.execute(sql, [cid])
+        result_2 = cursor.fetchall()
+        # print(result_2)
         cursor.close()
-        print(result)
 
         accountInfo = []
         if len(result) == 0:
             messages.error("Something Went Wrong. This Account Doesn't Exist!")
         else:
-            for r in result:
-                accountInfo.append(AccountInfo(r))
+            contact_no = []
+            if len(result_2)==0:
+                contact_no.append("Not Provided!")
+            else:
+                for r in result_2:
+                    contact_no.append(r[0])
+            for info in result:
+                accountInfo.append(AccountInfo(info, contact_no))
 
         
 

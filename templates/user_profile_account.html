@@ -55,7 +55,14 @@
                         <label for="email"><strong>Full Address</strong></label>
                         <p>{{ i.fulladdress }}</p>
                     </div>
-                    
+
+                    <div class="form-group">
+                        <label for="email"><strong>Contact Number</strong></label>
+                        {% for j in i.contact %}
+                        <p>{{ j }}</p>
+                        {% endfor %}
+                    </div>
+
                 </div>
             </div>
         </div>
