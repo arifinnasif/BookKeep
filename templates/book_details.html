@@ -45,6 +45,11 @@
     .my-isbn {
         display: none;
     }
+
+    .border-style {
+        border: solid;
+    }
+
 </style>
 
 
@@ -87,7 +92,7 @@
 
             {% for i in bookShortInfo %}
             <div class="row align-items-md-stretch">
-                <div class="p-3 mb-2 bg-light rounded-3">
+                <div class="p-3 mb-2 bg-light rounded-3 border-style">
                     <div class="book_image" align="center">
                         <figure class="figure">
                             <img src="{% static 'book_cover/War-and-Peace.jpg' %}" class="figure-img img-fluid rounded"
@@ -229,7 +234,7 @@
                 <div class="tab-pane" id="specification" role="tabpanel" aria-labelledby="specification-tab">
 
                     <div class="pt-3">
-                        <table class="table table-striped table-hover" style="font-size:larger;">
+                        <table class="table table-striped table-hover border-style" style="font-size:larger;">
 
                             {% for i in bookLongInfo %}
                             <tbody>
@@ -286,7 +291,7 @@
 
                 <div class="tab-pane" id="author_details" role="tabpanel" aria-labelledby="author_details-tab">
                     <div class="pt-3">
-                        <table class="table table-striped table-hover" style="font-size:larger;">
+                        <table class="table table-striped table-hover border-style" style="font-size:larger;">
                             {% for i in authorInfo %}
                             <tbody>
                                 <tr>
@@ -320,7 +325,7 @@
 
                         {% for i in bookLongInfo %}
 
-                        <form method="post" class="pb-4" action="{{i.isbn}}">
+                        <form method="post" class="pb-2 pr-2 pl-2 pt-2 border-style" action="{{i.isbn}}">
                             {% csrf_token %}
 
                             <h3>
@@ -346,7 +351,7 @@
 
                         <header class="pb-3 mb-4 border-bottom">
                             <a href="#" class="d-flex align-items-center text-dark text-decoration-none">
-                                <span class="fs-4">
+                                <span class="fs-4 mt-4">
                                     <h1>All Ratings and Reviews</h1>
                                 </span>
                             </a>

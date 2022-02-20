@@ -33,6 +33,11 @@
     .my-order {
         display: none;
     }
+
+    .border-style {
+        border: solid;
+    }
+
 </style>
 
 <header class="pb-3 mb-4 border-bottom">
@@ -60,7 +65,7 @@
     <div class="col-md-12 col-lg-8">
         {% for i in cart %}
         <div class="container-fluid row align-items-md-stretch">
-            <div class="bg-light p-3 mb-2 rounded-3" style="height: 300px;">
+            <div class="bg-light p-3 mb-2 rounded-3 border-style" style="height: 300px;">
                 <!--p-3 mb-2 rounded-3-->
                 <div class="book_image" align="center">
                     <figure class="figure">
@@ -140,8 +145,8 @@
                 {% endfor %}
             </table>
             <div class="card shadow mb-3 fs-5">
-                <div class="card-header text-dark">
-                    Shipping Address
+                <div class="card-header text-dark border-style">
+                   <strong>Shipping Address</strong> 
                 </div>
                 <div class="card-body">
                     {{useraddress}}

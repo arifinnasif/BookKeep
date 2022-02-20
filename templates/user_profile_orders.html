@@ -5,6 +5,22 @@
 
 {% block user-profile-content-block %}
 
+<style>
+    .border-style {
+        border: solid;
+    }
+
+    .border-style-2{
+        border: solid;
+        border-color: green;
+    }
+
+    .border-style-3{
+        border: solid;
+        border-color: red;
+    }
+</style>
+
 <!--------------------------------------- HEADER + MESSAGE --------------------------------------->
 
 <header class="pb-3 mb-4 border-bottom">
@@ -37,7 +53,7 @@
 {% for k,v in completed.items %}
 
 <div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3">
+    <div class="bg-light p-3 mb-2 rounded-3 border-style-2 mb-3">
 
         <div>
             <div align="left" style="width: 50%; float: left;">
@@ -56,14 +72,14 @@
 </div>
 
 <div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3">
+    <div class="bg-light p-3 mb-2 rounded-3 border-style mb-3">
 
         <div class="row">
             {% for j in v.0 %}
             <div class="col-sm-6">
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-header">{{j.bookName}}</h5>
+                        <h5 class="card-header border-style mb-3">{{j.bookName}}</h5>
                         <!-- <h5 class="col-md-12 fs-5">  </h5> -->
                         <h6 class="col-md-12 fs-5"> Price: ৳{{j.unitprice}}</h6>
                         <h6 class="col-md-12 fs-5">Quantity: {{j.quantity}}</h6>
@@ -92,7 +108,7 @@
 {% for k,v in pending.items %}
 
 <div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3">
+    <div class="bg-light p-3 mb-2 rounded-3 border-style-3 mb-3">
 
         <div>
             <div align="left" style="width: 50%; float: left;">
@@ -109,14 +125,14 @@
 </div>
 
 <div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3">
+    <div class="bg-light p-3 mb-2 rounded-3 border-style mb-3">
 
         <div class="row">
             {% for j in v.0 %}
             <div class="col-sm-6">
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-header">Title: {{j.bookName}}</h5>
+                        <h5 class="card-header border-style mb-3">{{j.bookName}}</h5>
 
                         <h6 class="col-md-12 fs-5"> Price: ৳{{j.unitprice}}</h6>
                         <h6 class="col-md-12 fs-5">Quantity: {{j.quantity}}</h6>
