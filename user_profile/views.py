@@ -30,6 +30,7 @@ def show_profile(request, cid):
 
     return render(request, 'user_profile.html', context)
 
+
 class AccountInfo:
     def __init__(self, row, contact):
         self.username = row[0]
@@ -49,6 +50,16 @@ class BookInTheCart:
         self.quantity = entry[3]
         self.price = entry[4]
         self.discounted_price = entry[5]
+
+
+class BookInTheWishlist:
+    def __init__(self, entry):
+        self.isbn = entry[0]
+        self.bookName = entry[1]
+        self.authorName = entry[2]
+        self.price = entry[3]
+        self.discounted_price = entry[4]
+
 
 
 class CheckoutCart:
@@ -74,6 +85,197 @@ class BookOrderList:
             self.deliverydate = ""
         else:
             self.deliverydate = entry[6].strftime("%d %B %Y")     
+
+
+class MyWishListView(View):
+    def get(self, request, cid):
+
+        cursor = connection.cursor()
+        sql =   """
+                SELECT OFFER_ID, NAME, DISCOUNT_PCT, START_DATE, PERIOD
+                FROM OFFERS
+                """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        ongoingOfferInfo = []
+        for r in result:
+            cursor = connection.cursor()
+            sql =   """
+                    SELECT ISBN
+                    FROM OFFER_BOOK OB INNER JOIN BOOKS B USING (ISBN)
+                    WHERE OB.OFFER_ID = %s
+                    """
+            cursor.execute(sql,[int(r[0])])
+            result2 = cursor.fetchall()
+            cursor.close()
+
+            books_with_this_offer = []
+            for r2 in result2:
+                books_with_this_offer.append(r2[0])
+
+            temp_dict = {
+                "offerID" : r[0],
+                "offerName" : r[1],
+                "discount_pct" : r[2],
+                "start_date" : r[3].strftime('%Y-%m-%d'),
+                "period" : r[4],
+                "books_with_this_offer" : books_with_this_offer,
+            }
+
+            if r[3] < datetime.datetime.now() and r[3]+datetime.timedelta(days = int(r[4])) > datetime.datetime.now():
+                ongoingOfferInfo.append(temp_dict)
+        # print(ongoingOfferInfo)
+        
+        cursor = connection.cursor()
+        sql = """SELECT ISBN, B.NAME BOOK, A.NAME AUTHOR, B.PRICE
+                FROM WISHLISTS W
+                LEFT OUTER JOIN BOOKS B USING (ISBN)
+                LEFT OUTER JOIN WRITES W USING (ISBN)
+                LEFT OUTER JOIN AUTHORS A USING (AUTHOR_ID)
+                WHERE W.CUSTOMER_ID = %s"""
+        cursor.execute(sql, [cid])
+        result = cursor.fetchall()
+        cursor.close()
+
+        if len(result) == 0:
+            messages.error(request, 'Your Wishlist is Empty!')
+
+        user_wishlist = []
+        for r in result:
+            val = [i for i in r]
+            # print(val)
+            for j in ongoingOfferInfo:
+                if val[0] in j['books_with_this_offer']:
+                    # per book discount
+                    discount = float(val[3]) * float(j['discount_pct']) 
+                    # discounted price per book
+                    val.append("{:.2f}".format(round((float(val[3]) - discount), 2)))
+                else:
+                    discount = 0.00
+                    val.append(val[3])  # same price as before
+            
+            # price = float(val[4])*int(val[3])
+            # discount = discount*int(val[3])
+
+            user_wishlist.append(BookInTheWishlist(val))
+
+
+        
+        userfullname = None
+        if request.session.get('usertype') == 'customer':
+            cursor = connection.cursor()
+            sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+            cursor.execute(sql, [request.session.get('username', default='guest')])
+            result = cursor.fetchall()
+            cursor.close()
+            userfullname = result[0][0]
+
+        username = request.session.get('username')
+        usertype = request.session.get('usertype')
+        context = {
+            "userfullname": userfullname,
+            "username": username,
+            "usertype": usertype,
+            "wishlist": user_wishlist,
+        }
+        
+        return render(request, 'user_profile_wishlist.html', context)
+
+    
+    def post(self, request, cid):
+        username = str(request.session['username'])
+
+        if request.POST.get('post_type') == 'add' :
+            try:
+                quantity = int(request.POST.get('quantity'))
+                isbn = str(request.POST.get('isbn'))
+                print(quantity, isbn)
+            except ValueError:
+                messages.error(
+                    request, 'Something went wrong. Please try again!')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+            cursor = connection.cursor()
+            sql = """SELECT COUNT(*) FROM BOOKS WHERE ISBN = %s"""
+            cursor.execute(sql, [isbn])
+            result = cursor.fetchall()
+            result = result[0][0]
+            if result == 0:
+                messages.error(
+                    request, 'Something went wrong. Please try again!')
+                
+            else:
+
+                return_msg = cursor.var(str).var
+                cursor.callproc("INSERT_UPDATE_CART", [
+                                quantity, username, isbn, return_msg])
+                msg = return_msg.getvalue()
+                messages.info(request, msg)
+                connection.commit()
+                connection.close()
+
+                cursor = connection.cursor()
+                sql = """DELETE 
+                        FROM WISHLISTS
+                        WHERE CUSTOMER_ID = %s AND ISBN = %s"""
+                cursor.execute(sql, [username, isbn])
+                connection.close()
+
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+        
+        elif request.POST.get('post_type') == 'remove':
+            try:
+                isbn = str(request.POST.get('isbn'))
+                # print(isbn)
+            except ValueError:
+                messages.error(request, 'Something went wrong. Please try again!')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))  
+
+            cursor = connection.cursor()
+            sql = """DELETE 
+                    FROM WISHLISTS
+                    WHERE CUSTOMER_ID = %s AND ISBN = %s"""
+            cursor.execute(sql, [username, isbn])
+            messages.info(request, 'Item Removed Successfully!')
+            connection.close()
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+        
+        elif request.POST.get('post_type') == 'wish' :
+            try:
+                isbn = str(request.POST.get('isbn'))
+                print(isbn)
+            except ValueError:
+                messages.error(
+                    request, 'Something went wrong. Please try again!')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+            cursor = connection.cursor()
+            sql = """SELECT COUNT(*) FROM WISHLISTS WHERE CUSTOMER_ID = %s AND ISBN = %s"""
+            cursor.execute(sql, [username, isbn])
+            result = cursor.fetchall()
+            result = result[0][0]
+            if result != 0:
+                messages.error(
+                    request, 'You Have Already Wishlisted This!')
+                
+            else:
+
+                cursor = connection.cursor()
+                sql = """INSERT 
+                        INTO WISHLISTS (CUSTOMER_ID, ISBN) 
+                        VALUES (%s, %s)"""
+                cursor.execute(sql, [username, isbn])
+                connection.close()
+                messages.info(request, 'Book Wishlisted!')
+                connection.commit()
+
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+        
 
 
 class MyCartView(View):
@@ -167,6 +369,7 @@ class MyCartView(View):
             
             price = float(val[4])*int(val[3])
             discount = discount*int(val[3])
+
             subtotal = subtotal + price
             total = total + (price - discount)
 
@@ -360,6 +563,7 @@ class MyOrderView(View):
         }
         
         return render(request, 'user_profile_orders.html', context)
+
 
 class MyAccountView(View):
     def get(self, request, cid):
