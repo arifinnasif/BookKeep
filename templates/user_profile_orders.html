@@ -13,11 +13,13 @@
     .border-style-2{
         border: solid;
         border-color: green;
+        background-color: #c5ebbe;
     }
 
     .border-style-3{
         border: solid;
         border-color: red;
+        background-color: #f0a1a6;
     }
 </style>
 
@@ -53,7 +55,7 @@
 {% for k,v in completed.items %}
 
 <div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3 border-style-2 mb-3">
+    <div class="p-3 mb-2 rounded-3 border-style-2 mb-3">
 
         <div>
             <div align="left" style="width: 50%; float: left;">
@@ -108,7 +110,7 @@
 {% for k,v in pending.items %}
 
 <div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3 border-style-3 mb-3">
+    <div class="p-3 mb-2 rounded-3 border-style-3 mb-3">
 
         <div>
             <div align="left" style="width: 50%; float: left;">

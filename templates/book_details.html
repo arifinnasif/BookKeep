@@ -96,10 +96,35 @@
 
                         <h2 class="display-5 fw-bold text-dark">{{i.bookName}}</h2>
                         <h3 class="col-md-12 fs-1"> By- {{i.authorName}} </h3>
-                        <h3 class="col-md-12 fs-3"> Price: ৳{{i.price}}</h3>
-                        <h4 class="col-md-12 fs-3"> Genre: {{i.type}}</h4>
-                        <h4 class="col-md-12 fs-3 my-isbn">{{i.isbn}}</h4>
 
+                        {% if i.discountedprice %}
+                        <h3 class="col-md-12 fs-3"> Price: ৳ <strike>{{i.price}}</strike> {{i.discountedprice}}</h3>
+                        {% else %}
+                        <h3 class="col-md-12 fs-3"> Price: ৳{{i.price}}</h3>
+                        {% endif %}
+
+                        {% if i.offername %}
+                        <button type="button" class="btn btn-info">{{i.offername}}</button>
+                        {% endif %}
+
+                        <h4 class="col-md-12 fs-3"> Genre: {{i.type}}</h4>
+
+                        {% if i.quantity == 0 %}
+                        
+                        <div class="alert alert-dismissible alert-danger pt-3 mt-3">
+                            <button type="button" class="close" data-dismiss="alert">
+                                ×
+                            </button>
+                            <strong>Out of Stock!</strong>
+                        </div>
+
+                        {% else %}
+                        <h4 class="col-md-12 fs-3"> Available Quantity: {{i.quantity}}</h4>
+
+                        {% endif %}
+                    
+                        <h4 class="col-md-12 fs-3 my-isbn">{{i.isbn}}</h4>
+                       
 
 
                         <div class="pt-4">
@@ -127,6 +152,8 @@
                                 </svg>
                                 Borrow </button>
                         </div>
+
+                        
                     </div>
                 </div>
             </div>
