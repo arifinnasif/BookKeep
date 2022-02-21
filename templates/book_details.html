@@ -84,15 +84,15 @@
 
             {% for i in bookShortInfo %}
             <div class="row align-items-md-stretch">
-                <div class="p-3 mb-2 bg-light rounded-3 border-style">
-                    <div class="book_image" align="center">
+                <div class="p-3 mb-2 bg-light border-style">
+                    <div class="book_image mt-3 pt-3" align="center">
                         <figure class="figure">
-                            <img src="{% static 'book_cover/War-and-Peace.jpg' %}" class="figure-img img-fluid rounded"
-                                alt="alternative text for book image">
-                            <figcaption class="figure-caption">A caption for the above image.</figcaption>
+                            <img src="{% static 'book_cover/' %}{{i.isbn}}.jpg" class="figure-img img-fluid rounded"
+                                alt="alternative text for book image" style="width: 20rem; height: 25rem;" align="center">
+                            <!-- <figcaption class="figure-caption">A caption for the above image.</figcaption> -->
                         </figure>
                     </div>
-                    <div class="container-fluid py-5 align-items-right book_desc">
+                    <div class="container-fluid py-4 book_desc" align="center">
 
                         <h2 class="display-5 fw-bold text-dark">{{i.bookName}}</h2>
                         <h3 class="col-md-12 fs-1"> By- {{i.authorName}} </h3>

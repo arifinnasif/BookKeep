@@ -83,9 +83,9 @@
           {% for book in books %}
 
           <div class="col-auto">
-            <div class="card mb-4 shadow" style="width: 16rem;">
-              <img src="{% static 'book_cover/War-and-Peace.jpg' %}" class="card-img-top" alt="Placeholder">
-              <div class="card-body" style="height: 7rem;">
+            <div class="card mb-4 shadow" style="width: 16rem; height: 35rem;">
+              <img src="{% static 'book_cover/' %}{{book.isbn}}.jpg" class="card-img-top" alt="Placeholder">
+              <div class="card-body" style="height: 10rem;">
                 <h5 class="card-title" align="center">{{book.bookName}}</h5>
                 <p class="card-text" align="center">{{book.authorName}}</p>
                 <!-- replace with link to book info page -->
