@@ -156,6 +156,17 @@ class AdminBookListView(View):
             cursor.close()
             return redirect('admin-book-list-view')
 
+        elif post_type == 'add-to-borrowable':
+            cursor = connection.cursor()
+            ret = cursor.callfunc("ADD_BOOK_TO_BORROWABLE", int, [isbn])
+            cursor.close()
+
+            if ret == 0:
+                messages.error(request, 'Not enough books')
+            else:
+                messages.success(request, 'Added to borrowables')
+            return redirect('admin-book-list-view')
+
 
 
 
@@ -263,6 +274,9 @@ class AdminBookListView(View):
                 cursor.execute(sql, [isbn, i2.strip()])
                 cursor.close()
             messages.success(request, 'Successfully added')
+
+
+
 
         if uploaded_pic is not None:
             uploaded_pic_ext = uploaded_pic.name.split('.')[-1]
@@ -839,6 +853,7 @@ class AdminOfferListView(View):
 
 
 class AdminBorrowsView(View):
+    @check_if_authorized_manager
     def get(self, request):
         # book currently occupied
         # book that are available
@@ -936,12 +951,13 @@ class AdminBorrowsView(View):
 
         return render(request, 'admin_panel_borrows.html', context)
 
+    @check_if_authorized_manager
     def post(self, request):
         print(request.POST)
         post_type = request.POST.get('post_type')
         customerID = request.POST.get('customerID')
 
-        
+
         if post_type == 'received':
             borrowableItemID = int(request.POST.get('borrowableItemID'))
 

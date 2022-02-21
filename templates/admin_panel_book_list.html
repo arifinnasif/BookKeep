@@ -57,6 +57,12 @@
       <td class="my-authorID d-none">{{row.authorID}}</td>
       <td class="my-publisherID d-none">{{row.publisherID}}</td>
       <td>
+        <form id="{{row.ISBN}}-add-to-borrowable-form" action="{% url 'admin-book-list-view' %}" method='post' enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="post_type" value="add-to-borrowable">
+          <input type="hidden" name="ISBN" value="{{row.ISBN}}">
+
+        </form>
         <div class="btn-group">
           <button type="button" title="Edit" class="btn btn-secondary my-edit-btn" data-bs-toggle="modal" data-bs-target="#editModal" data-ISBN="{{row.ISBN}}" data-bookName="{{row.bookName}}" data-authorID="{{row.authorID}}" data-edition="{{row.edition}}"
             data-releaseDate="{{row.releaseDate}}" data-price="{{row.price}}" data-pageCount="{{row.pageCount}}" data-quantity="{{row.quantity}}" data-publisherID="{{row.publisherID}}"
@@ -72,6 +78,10 @@
               <path
                 d="M13.442 2.558a.625.625 0 0 1 0 .884l-10 10a.625.625 0 1 1-.884-.884l10-10a.625.625 0 0 1 .884 0zM4.5 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zm7 6a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm0 1a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z" />
             </svg>
+            <button form="{{row.ISBN}}-add-to-borrowable-form" type="button submit" title="Add to Borrowable" class="btn btn-secondary my-add-to-borrowable-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-bar-right" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M6 8a.5.5 0 0 0 .5.5h5.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L12.293 7.5H6.5A.5.5 0 0 0 6 8zm-2.5 7a.5.5 0 0 1-.5-.5v-13a.5.5 0 0 1 1 0v13a.5.5 0 0 1-.5.5z"/>
+              </svg>
           </button>
         </div>
         <!-- Button trigger modal -->
