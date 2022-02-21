@@ -171,7 +171,6 @@ class HomepageView(View):
 
         try:
             expr = str(request.POST.get('search'))
-            
             cursor = connection.cursor()
            
 
@@ -182,13 +181,63 @@ class HomepageView(View):
                     OR LOWER(A.NAME) LIKE %s"""
             
             cursor.execute(sql, ['%' + str(expr.lower()) + '%', '%' + str(expr.lower()) + '%'])
-            print(expr)
+            # print(expr)
             result = cursor.fetchall()
             cursor.close()
         except Exception as e:
             print(e)
             messages.error(request, 'Error while searching! Please try again.')
 
+        try:
+            cursor = connection.cursor()
+            if request.POST.get('lowtohigh') is not None:
+                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN 
+                        FROM BOOKS B 
+                        LEFT OUTER JOIN WRITES W USING(ISBN) 
+                        JOIN AUTHORS A USING (AUTHOR_ID)
+                        ORDER BY PRICE"""
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                cursor.close()
+                messages.info(request, 'Books Sorted By Original Price (Low To High)')
+
+            elif request.POST.get('hightolow') is not None:
+                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN 
+                        FROM BOOKS B 
+                        LEFT OUTER JOIN WRITES W USING(ISBN) 
+                        JOIN AUTHORS A USING (AUTHOR_ID)
+                        ORDER BY PRICE DESC"""
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                cursor.close()
+                messages.info(request, 'Books Sorted By Original Price (High To Low)')
+
+            elif request.POST.get('oldtonew') is not None:
+                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN
+                        FROM BOOKS B 
+                        LEFT OUTER JOIN WRITES W USING(ISBN) 
+                        JOIN AUTHORS A USING (AUTHOR_ID)
+                        ORDER BY RELEASE_DATE"""
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                cursor.close()
+                messages.info(request, 'Books Sorted By Release Date (Old To New)')
+
+            elif request.POST.get('newtoold') is not None:
+                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN
+                        FROM BOOKS B 
+                        LEFT OUTER JOIN WRITES W USING(ISBN) 
+                        JOIN AUTHORS A USING (AUTHOR_ID)
+                        ORDER BY RELEASE_DATE DESC"""
+                cursor.execute(sql)
+                result = cursor.fetchall()
+                cursor.close()
+                messages.info(request, 'Books Sorted By Release Date (New To Old)')
+
+
+        except Exception as e:
+            print(e)
+            messages.error(request, 'Error while sorting! Please try again.')
 
         books = []
         for r in result:
@@ -205,7 +254,7 @@ class HomepageView(View):
                         val.append(None)
             books.append(BookAuthorModel(val[0], val[1], val[2], val[3], val[4], val[5]))
 
-        random.shuffle(books)
+        # random.shuffle(books)
 
         context = {
             "username": username,
