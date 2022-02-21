@@ -838,6 +838,153 @@ class AdminOfferListView(View):
         return redirect('admin-offer-list-view')
 
 
+class AdminBorrowsView(View):
+    def get(self, request):
+        # book currently occupied
+        # book that are available
+        # reqs with check flag
+
+        cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT BRS.BORROWABLE_ITEM_ID, BRS.CUSTOMER_ID, BKS.ISBN, BKS.NAME, BRS.START_DATE
+		    FROM BORROWS BRS
+            INNER JOIN BORROWABLE_ITEMS BRITMS ON (BRS.BORROWABLE_ITEM_ID = BRITMS.BORROWABLE_ITEM_ID)
+            INNER JOIN BOOKS BKS ON (BRITMS.ISBN = BKS.ISBN)
+            WHERE BRS.END_DATE IS NULL
+            ORDER BY BRS.START_DATE ASC
+	       """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        occupied_books = []
+        for r in result:
+            occupied_books.append({
+                "borrowableItemID" : r[0],
+                "customerID" : r[1],
+                "ISBN" : r[2],
+                "bookName" : r[3],
+                "startDate" : r[4].strftime('%Y-%m-%d %H:%M:%S'),
+            })
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT A.BORROWABLE_ITEM_ID, ISBN, B.NAME
+            FROM BORROWABLE_ITEMS A
+            INNER JOIN BOOKS B USING (ISBN)
+
+            WHERE A.BORROWABLE_ITEM_ID IN
+
+            (((SELECT BORROWABLE_ITEM_ID FROM BORROWABLE_ITEMS)
+            MINUS
+            (SELECT BORROWABLE_ITEM_ID FROM BORROWS WHERE END_DATE IS NULL))
+            MINUS
+            SELECT BORROWABLE_ITEM_ID FROM EXPIRED)
+	       """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+
+        available_books = []
+        for r in result:
+            available_books.append({
+                "borrowableItemID" : r[0],
+                "ISBN" : r[1],
+                "bookName" : r[2],
+            })
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT R.CUSTOMER_ID, ISBN, B.NAME FROM REQUESTS R INNER JOIN BOOKS B USING (ISBN)
+	       """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        reqs = []
+        for r in result:
+            # cursor = connection.cursor()
+            # sql = """
+            #     SELECT COUNT(*)
+		    #     FROM BORROWS A
+		    #     INNER JOIN BORROWABLE_ITEMS B USING(BORROWABLE_ITEM_ID)
+		    #     WHERE A.CUSTOMER_ID = %s AND B.ISBN = %s
+    	    #    """
+            # cursor.execute(sql, [r[0], r[1]])
+            # result2 = cursor.fetchall()
+            # cursor.close()
+            #
+            # asking_for_same_book=False
+            # if int(result2[0][0] != 0):
+            #     asking_for_same_book=True
+            reqs.append({
+                "customerID" : r[0],
+                "ISBN" : r[1],
+                "bookName" : r[2],
+            })
+
+        context = {
+            "occupied_books" : occupied_books,
+            "available_books" : available_books,
+            "reqs" : reqs,
+        }
+
+        return render(request, 'admin_panel_borrows.html', context)
+
+    def post(self, request):
+        print(request.POST)
+        post_type = request.POST.get('post_type')
+        customerID = request.POST.get('customerID')
+
+        
+        if post_type == 'received':
+            borrowableItemID = int(request.POST.get('borrowableItemID'))
+
+            cursor = connection.cursor()
+            sql =   """
+                UPDATE BORROWS SET END_DATE = %s WHERE CUSTOMER_ID = %s AND BORROWABLE_ITEM_ID = %s
+                """
+            cursor.execute(sql, [datetime.datetime.now(), customerID, borrowableItemID])
+            cursor.close()
+
+
+        elif post_type == 'resolve':
+            ISBN = request.POST.get('ISBN')
+            cursor = connection.cursor()
+            ret = cursor.callfunc("ACCEPT_BORROW_REQUEST", int, [customerID, ISBN, datetime.datetime.now()])
+            if ret == 0:
+                messages.success(request, 'Customer can now have the book')
+
+            elif ret == 1:
+                messages.error(request, 'Not a valid subscriber')
+
+            elif ret == 2:
+                messages.error(request, 'Quota limit crossed for this customer')
+
+            elif ret == 3:
+                messages.error(request, 'Book not available')
+
+            elif ret == 4:
+                messages.error(request, 'Already borrowed')
+
+
+        elif post_type == 'decline':
+            ISBN = request.POST.get('ISBN')
+            cursor = connection.cursor()
+            sql =   """
+                DELETE FROM REQUESTS WHERE CUSTOMER_ID = %s AND ISBN = %s
+                """
+            cursor.execute(sql, [customerID, ISBN])
+            cursor.close()
+
+
+        return redirect('admin-borrows-view')
+
 # class Test(View):
 #     def get(self, request):
 #         return render(request, 'test.html')
