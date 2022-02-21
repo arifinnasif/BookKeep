@@ -1,4 +1,3 @@
-from msilib.schema import Error
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.db import connection
 from django.views import View
