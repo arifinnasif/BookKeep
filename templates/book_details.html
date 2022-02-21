@@ -35,7 +35,7 @@
     }
 
     .checked {
-        color: orange;
+        color: #f7710a;
     }
 
     .cart_modal {
@@ -47,6 +47,11 @@
     }
 
     .border-style {
+        border: solid;
+    }
+
+    .feedback{
+        background-color: #f7f8fa;
         border: solid;
     }
 </style>
@@ -407,10 +412,9 @@
 
                         {% for i in feedback %}
                         {% if i.flag %}
-                        <div class="jumbotron jumbotron-fluid">
-                            <div class="container">
+                        <div class="container-fluid row align-items-md-stretch">
+                            <div class="p-3 mb-2 rounded-3 feedback">
                                 <!-- <h1 class="display-4">Fluid jumbotron</h1> -->
-
 
                                 <h3>{{i.username}}</h3>
                                 <!--Didn't handle null rating-->
@@ -421,7 +425,7 @@
                                 <span class="fa fa-star"></span>
                                 {% endif %}
                                 {% endfor %}
-                                <p class="lead">{{i.review}}</p>
+                                <p>{{i.review}}</p>
 
                             </div>
                         </div>
