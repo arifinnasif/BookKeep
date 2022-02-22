@@ -1,0 +1,261 @@
+[33mcommit a874d077a91dd63dd5bb486465787c5426151fb2[m[33m ([m[1;36mHEAD -> [m[1;32mdev-haider[m[33m)[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Tue Feb 22 03:30:25 2022 +0600
+
+    sorting queries done
+
+[33mcommit 068fdad9e786146c99c0b397101c405aafb2b22d[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Tue Feb 22 01:54:36 2022 +0600
+
+    minor ui fixes
+
+[33mcommit 492f2c96b4349014c0cf2399b45af5f916ba53f0[m[33m ([m[1;31morigin/dev-haider[m[33m)[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Mon Feb 21 21:56:03 2022 +0600
+
+    search with author name and book name done in catalog
+
+[33mcommit 5f28070d3086badd221b7e4111161e30212f0930[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Mon Feb 21 19:36:17 2022 +0600
+
+    sales offer check and show on all pages
+
+[33mcommit 34c176e2424966edb0e166f882955d7b23884c19[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Mon Feb 21 07:48:55 2022 +0600
+
+    existing book images added and url fixed
+
+[33mcommit c3b635e369cd6e42ea39d6b5d66a32292df3496e[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Mon Feb 21 05:49:56 2022 +0600
+
+    wishlist functional
+
+[33mcommit 883cbc3f4cd811834139c93c2c2dedf227deed87[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Mon Feb 21 03:27:12 2022 +0600
+
+    containers modified
+
+[33mcommit c7bc5c631c5201ffc50f248331e9789d33493198[m[33m ([m[1;31morigin/ui-asif[m[33m, [m[1;31morigin/dev-asif[m[33m)[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 18 21:08:06 2022 +0600
+
+    order place done
+
+[33mcommit c9d8e32317b34b47ce3b8145488a941ef53172dc[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 18 09:58:09 2022 +0600
+
+    checkout added with sales track
+
+[33mcommit b9873b4935acf8d23186b9c736e521d7fe0e6b8f[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 18 07:43:25 2022 +0600
+
+    minor ui fixes
+
+[33mcommit 962ca6931795a1c47a11ea761e05d740195db2a6[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 18 05:09:19 2022 +0600
+
+    customer account info added
+
+[33mcommit e1fbe975474dee3b3a2ae65496edbc788dde5551[m
+Merge: 8ae8d82 190bc77
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 18 03:03:45 2022 +0600
+
+    Merge branch 'main' of https://github.com/arifinnasif/BookKeep into ui-asif
+
+[33mcommit 190bc77e3728cee5fb00510c40b6456218ab1b89[m
+Merge: 4e1ee41 e21edce
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Fri Feb 18 02:43:42 2022 +0600
+
+    Merge branch 'ui-asif'
+
+[33mcommit 4e1ee4138f97db0e3ce8b6dcfd7499ea9ab37d1f[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Fri Feb 18 02:39:41 2022 +0600
+
+    Added aria description message to remove ambiguity
+
+[33mcommit edfe14d7ba7199e032f00fe353f3b163c0f4483a[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Fri Feb 18 02:33:32 2022 +0600
+
+    Authentication added in all the necessary urls handled by me
+
+[33mcommit 19437996921f0ad36a2f769cad1016cdb42953b6[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Fri Feb 18 02:32:28 2022 +0600
+
+    Necessary decorators added and bug fixed in old ones
+
+[33mcommit 1e3cf7ed9f67ad498e0947718a9184e22641beee[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Fri Feb 18 01:51:54 2022 +0600
+
+    User registration added
+
+[33mcommit ead457095959805e5467b93213215de345272a9c[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Thu Feb 17 22:43:26 2022 +0600
+
+    Added missing authorization check
+
+[33mcommit 2211aed5c162cbedf4cde01ca7e75b9d71459ff7[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Thu Feb 17 17:06:24 2022 +0600
+
+    Offer list added and some bug fixes in author list and order log
+
+[33mcommit 8ae8d823fee71e25901ad6ebd016430ee40b0996[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Thu Feb 17 07:58:56 2022 +0600
+
+    completed and pending order details added
+
+[33mcommit e21edcece369128f59c28f19e41ea5a631718cb2[m
+Merge: 30173c0 0fef104
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Thu Feb 17 05:05:22 2022 +0600
+
+    Merge branch 'main' of https://github.com/arifinnasif/BookKeep into ui-asif
+
+[33mcommit 0fef104be67a914aaccfc2949980ae86605da002[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Wed Feb 16 22:49:38 2022 +0600
+
+    Offer granting added and some bug fixes
+    
+    * grant offer added in admin booklist
+    * major bug fixed in inputs involving `selected` and `checked`
+
+[33mcommit 30173c0e9991a6e8aff13c29b0b5898520dc6ade[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Tue Feb 15 10:23:48 2022 +0600
+
+    my order tab added in user profile
+
+[33mcommit ed339b0e36e32b2bfce86d8ac545fba884a83576[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Tue Feb 15 02:31:13 2022 +0600
+
+    Book Type added and restructured admin booklist
+
+[33mcommit 1a2bdb89a621bd60cbf849c41002b9bce083f144[m
+Merge: 855e816 5737560
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Sat Feb 12 22:39:38 2022 +0600
+
+    Merge branch 'dev-nasif'
+
+[33mcommit 5737560a45c01cf8c260d0317674e30743031eb2[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Sat Feb 12 22:37:37 2022 +0600
+
+    README updated
+
+[33mcommit e324164d561fd8c1eb5a6889f84915489406ebcb[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Sat Feb 12 22:33:28 2022 +0600
+
+    Manager Login added
+
+[33mcommit 855e816358d629fb101c3c623f9daa9d7ff6dbcb[m
+Merge: 40d813c 76f9607
+Author: Md. Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Sat Feb 12 03:59:06 2022 +0600
+
+    Merge pull request #8 from arifinnasif/ui-asif
+    
+    UI asif
+
+[33mcommit 76f960761b9dbefee15bbdbe3033bc6108097c20[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Sat Feb 12 00:47:23 2022 +0600
+
+    cart add, edit, delete functional
+
+[33mcommit 90c81d7c5875f8ef2e0c7227e0844a34c6bb7404[m
+Merge: baf27b3 40d813c
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 11 23:52:31 2022 +0600
+
+    Merge branch 'main' of https://github.com/arifinnasif/BookKeep into ui-asif
+
+[33mcommit baf27b3f94cccd46b642c94271f4643320ba5644[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 11 23:37:40 2022 +0600
+
+    cart modified with procedure
+
+[33mcommit 519793a28e9bffed3e6644aec21a02accfe7733b[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 11 18:27:29 2022 +0600
+
+    cart access + editing done
+
+[33mcommit 40d813cb93f3055f1d7a9b7e01a71ee9fc6a0a1a[m
+Merge: 56eff28 fea7c42
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Fri Feb 11 16:49:52 2022 +0600
+
+    Merge branch 'ui-asif'
+
+[33mcommit fea7c429aafb0b1d5ba30a2fb5d3aa44dc4f01cc[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 11 05:53:49 2022 +0600
+
+    user profile app added + offcanvas link bug fixed
+
+[33mcommit 56eff28d7516fdca172118e7436438a938a05a80[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Fri Feb 11 05:41:05 2022 +0600
+
+    Publisher List added
+    
+    CRUD done. Too lazy to add sanity checks
+
+[33mcommit fd04e4b1145b31e86c66d5f62acfb2e3db549e54[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 11 04:09:15 2022 +0600
+
+    cart modal added and quantity retrieved
+
+[33mcommit f7bb119e08bb5a56f67e963a5996798453bb2e4c[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Fri Feb 11 02:02:55 2022 +0600
+
+    another bug in MAKE_ORDER fixed 2
+
+[33mcommit b3b8c4bba9b7ec94e2a837f62ad67083ccc78309[m
+Author: Asif Haider <1805112@ugrad.cse.buet.ac.bd>
+Date:   Fri Feb 11 02:02:50 2022 +0600
+
+    bugs checked + procedure file added for review post
+
+[33mcommit 728c29c00000f2154f0f4027d8759262868f0934[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Thu Feb 10 19:18:03 2022 +0600
+
+    another bug in MAKE_ORDER fixed
+
+[33mcommit 4b61e9ef841b9bb79c4ebade5bc89652fa0c4ec2[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Thu Feb 10 00:53:28 2022 +0600
+
+    bug in MAKE_ORDER fixed
+
+[33mcommit 832bc9dbe852bb0210990faabbb3bfd09f2c842e[m
+Author: Sultanul Arifin <msa336@outlook.com>
+Date:   Wed Feb 9 22:06:05 2022 +0600
+
+    Ordering has made procedural
+    
+    there may be some flukes 
