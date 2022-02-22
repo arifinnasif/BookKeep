@@ -74,7 +74,7 @@ e
     {% if usertype == 'customer' %}
     <h5 id="offcanvasRightLabel">Welcome! {{userfullname}}</h5>
     {% else %}
-    <h5 id="offcanvasRightLabel">login and profile links goes here</h5>
+    <h5 id="offcanvasRightLabel">You are not logged in. Please sign in!</h5>
     {% endif %}
     <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
@@ -83,12 +83,9 @@ e
     <ul class="nav flex-column">
 
       {% if usertype == 'customer' %}
+      
       <li class="nav-item">
-        <!-- cid = <variable> must be mentioned inside url dispatcher, and '='' can't have any preceding space -->
-        <a class="nav-link" aria-current="page" href="{% url 'user-profile' cid=username %}">My Profile</a>
-      </li>
-      <li class="nav-item">
-        <a class="nav-link" href="{% url 'user-profile-account' cid=username %}">My Account</a>
+        <a class="nav-link" aria-current="page" href="{% url 'user-profile-account' cid=username %}">My Account</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="{% url 'user-profile-wishlist' cid=username %}">My Wishlist</a>
