@@ -290,7 +290,7 @@ class UserBookDetailsView(View):
     def post(self, request, isbn):
 
         username = str(request.session['username'])
-        try:
+        if request.POST.get('post_type') == 'review':
             rating = int(request.POST.get('rating'))
             review = str(request.POST.get('review'))
             if rating >=1 and rating <=5 and len(review) < 256:
@@ -302,13 +302,16 @@ class UserBookDetailsView(View):
                 connection.commit()
                 print(username, isbn, rating, review)
                 connection.close()
-        except:
+        
+        if request.POST.get('post_type') == 'add':
             quantity = int(request.POST.get('quantity'))
             print(quantity)
 
         ### check if the post is of request type
-        is_request = False
-        if is_request:
+        
+            
+        if request.POST.get('post_type') == 'request':
+
             cursor = connection.cursor()
             ret = cursor.callfunc("REQUEST_TO_BORROW", [username, str(isbn), datetime.datetime.now()])
             cursor.close()
@@ -316,14 +319,18 @@ class UserBookDetailsView(View):
             if ret == 0:
                 # success
                 messages.success(request, "Successfully requested!")
+                print('bruh1')
             elif ret == 1:
                 # not a sub
+                print('bruh2')
                 messages.error(request, "You are not a subscriber or your subscription has expired")
             elif ret == 2:
                 # already requested (pending)
+                print('bruh3')
                 messages.warning(request, "Your request is pending. Request not made")
             elif ret ==3:
                 # already borrowed
+                print('bruh4')
                 messages.error(request, "You have already borrowed this book")
 
 

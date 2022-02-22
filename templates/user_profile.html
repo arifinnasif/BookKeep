@@ -32,11 +32,12 @@
 
 
             <ul class="nav nav-pills flex-column mb-auto" style="font-size: larger;">
-                <li class="nav-item">
-                    <a id="book-list" href="{% url 'user-profile-account' cid=username %}"
-                        class="nav-link text-white {% block my-account-anchor-class %}{% endblock %}">
+                <li>
+                    <a id="my-account" href="{% url 'user-profile-account' cid=username %}"
+                        class="nav-link text-white {% block my-account-anchor-class %}{% endblock %}"
+                        aria-current="page">
                         <svg class="bi me-2" width="24" height="24">
-                            <use xlink:href="#speedometer2" />
+                            <use xlink:href="#home" />
                         </svg>
                         My Account
                     </a>
@@ -61,7 +62,7 @@
                     </a>
                 </li>
                 <li>
-                    <a id="book-list" href="{% url 'user-profile-orders' cid=username %}"
+                    <a id="my-orders" href="{% url 'user-profile-orders' cid=username %}"
                         class="nav-link text-white {% block my-orders-anchor-class %}{% endblock %}"
                         aria-current="page">
                         <svg class="bi me-2" width="24" height="24">
@@ -71,7 +72,7 @@
                     </a>
                 </li>
                 <li>
-                    <a id="book-list" href="{% url 'user-profile-borrows' cid=username %}"
+                    <a id="mt-borrows" href="{% url 'user-profile-borrows' cid=username %}"
                         class="nav-link text-white {% block my-borrows-anchor-class %}{% endblock %}"
                         aria-current="page">
                         <svg class="bi me-2" width="24" height="24">
@@ -84,7 +85,6 @@
 
             <hr>
             <a href="{% url 'customer-logout-view' %}" class="nav-link bg-danger rounded text-center text-white">
-
                 Logout
             </a>
         </div>
