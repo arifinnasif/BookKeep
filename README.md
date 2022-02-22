@@ -14,14 +14,14 @@ L-2 T-2 Database Project
 * **custome_utils :** intended to be a package that contain the elements needed in the entire django project irrespective of apps
 
 ### Things to do after cloning the repo -
-1. Setup virtual environment
+1. Setup python virtual environment
 2. Run
     ```
     python manage.py collectstatic
     ```
-3. Install cx\_Oracle
+3. Install dependencies
 	```
-	python -m pip install cx_Oracle
+	python -m pip3 install -r requirements.txt
 	```
 4. If oracle is not locally installed. Download oracle instant client and run
 	```
@@ -31,3 +31,9 @@ L-2 T-2 Database Project
 	```
 	python manage.py migrate
 	```
+5. Set up the database using files in `sql`
+6. Start the server with
+	```
+	python manage.py runserver
+	```
+7. The `BookKeep` app will now be avaiable on `127.0.0.1:8000`

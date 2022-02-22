@@ -14,25 +14,93 @@ import datetime
 class AdminPanel(View):
     @check_if_authorized_manager
     def get(self, request):
-        return render(request, 'admin_panel.html')
+        cursor = connection.cursor()
+        sql = """
+            SELECT SUM(UNIT_PRICE * QUANTITY)
+            FROM ORDERS INNER JOIN ORDER_BOOK USING (ORDER_ID)
+            WHERE DELIVERY_DATE IS NOT NULL
+        """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        total_sold = float(result[0][0])
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT MIN(ORDERING_DATE)
+            FROM ORDERS
+        """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        since_date = result[0][0].strftime('%B %d, %Y')
 
 
-class CustomerInfoModel:
-    def __init__(self, row):
-        self.customerID         = row[0]
-        self.name               = row[1]
-        if row[2] is None:
-            self.address        = ""
-        else:
-            self.address        = row[2]
-        self.email              = row[3]
-        self.accountCreatedOn   = row[4].strftime('%Y-%m-%d %H:%M:%S')
-        if row[6] is None:
-            self.planName       = ""
-            self.membershipBoughtOn = ""
-        else:
-            self.planName       = row[6]
-            self.membershipBoughtOn = row[5].strftime('%Y-%m-%d %H:%M:%S')
+        cursor = connection.cursor()
+        sql = """
+            SELECT COUNT(*)
+            FROM CUSTOMERS
+        """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        total_customer_count = int(result[0][0])
+
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT SUM(QUANTITY)
+            FROM BOOKS
+        """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        total_book_count = int(result[0][0])
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT COUNT(*)
+            FROM OFFERS
+            WHERE START_DATE+PERIOD >= %s
+        """
+        cursor.execute(sql, [datetime.datetime.now()])
+        result = cursor.fetchall()
+        cursor.close()
+
+        total_offer_count = int(result[0][0])
+
+        context = {
+            "total_sold" : total_sold,
+            "since_date" : since_date,
+            "total_customer_count" : total_customer_count,
+            "total_book_count" : total_book_count,
+            "total_offer_count" : total_offer_count,
+        }
+
+
+        return render(request, 'admin_panel_overview.html', context)
+
+
+# class CustomerInfoModel:
+#     def __init__(self, row):
+#         self.customerID         = row[0]
+#         self.name               = row[1]
+#         if row[2] is None:
+#             self.address        = ""
+#         else:
+#             self.address        = row[2]
+#         self.email              = row[3]
+#         self.accountCreatedOn   = row[4].strftime('%Y-%m-%d %H:%M:%S')
+#         if row[6] is None:
+#             self.planName       = ""
+#             self.membershipBoughtOn = ""
+#         else:
+#             self.planName       = row[6]
+#             self.membershipBoughtOn = row[5].strftime('%Y-%m-%d %H:%M:%S')
 
 
 class AdminCustomerListView(View):
@@ -42,7 +110,7 @@ class AdminCustomerListView(View):
         cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
         cursor.close()
 
-        
+
         cursor = connection.cursor()
         sql = """SELECT CUSTOMER_ID, C.NAME, C.ADDRESS, C.EMAIL, C.ACCOUNT_CREATED_ON, S.MEMBERSHIP_BOUGHT_ON, P.NAME
                 FROM CUSTOMERS C
@@ -55,8 +123,30 @@ class AdminCustomerListView(View):
 
 
         customerInfo = []
-        for r in result:
-            customerInfo.append(CustomerInfoModel(r))
+        for row in result:
+            cursor = connection.cursor()
+            sql = """
+                    SELECT CONTACT_NUMBER FROM CUSTOMER_CONTACT_NUMBER WHERE CUSTOMER_ID = %s
+                    """
+            cursor.execute(sql, [row[0]])
+            result2 = cursor.fetchall()
+            cursor.close()
+            contact_numbers = []
+            for row2 in result2:
+                contact_numbers.append(row2[0])
+
+            customerInfo.append({
+                "customerID" : row[0],
+                "name" : row[1],
+                "address" : "" if row[2] is None else row[2],
+                "email" : row[3],
+                "accountCreatedOn" : row[4].strftime('%Y-%m-%d %H:%M:%S'),
+                "planName" : "" if row[6] is None else row[6],
+                "membershipBoughtOn" : "" if row[6] is None else row[5].strftime('%Y-%m-%d %H:%M:%S'),
+                "contact_numbers" : contact_numbers,
+            })
+
+
 
         context = {
             "customerInfo" : customerInfo,
@@ -498,12 +588,25 @@ class AdminOrderLogView(View):
 
     @check_if_authorized_manager
     def post(self, request):
-        cursor = connection.cursor()
-        sql =   """
-                UPDATE ORDERS SET DELIVERY_DATE = %s WHERE ORDER_ID = %s
-                """
-        cursor.execute(sql,[datetime.datetime.now(), request.POST.get('orderID')])
-        cursor.close()
+        print(request.POST)
+        post_type = request.POST.get('post_type')
+
+        if post_type == 'delivered':
+            cursor = connection.cursor()
+            sql =   """
+                    UPDATE ORDERS SET DELIVERY_DATE = %s WHERE ORDER_ID = %s
+                    """
+            cursor.execute(sql,[datetime.datetime.now(), request.POST.get('orderID')])
+            cursor.close()
+
+        elif post_type == 'cancel':
+            cursor = connection.cursor()
+            sql =   """
+                    DELETE FROM ORDERS WHERE ORDER_ID = %s AND DELIVERY_DATE IS NULL
+                    """
+            cursor.execute(sql,[request.POST.get('orderID')])
+            cursor.close()
+
         return redirect('admin-order-log-view')
 
 
