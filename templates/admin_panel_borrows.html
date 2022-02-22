@@ -1,0 +1,156 @@
+{% extends "admin_panel.html" %}
+
+{% block borrows-anchor-class %}active{% endblock %}
+
+{% block admin-content-block %}
+<h3 style="float:left">Borrow Requests</h3>
+
+<table class="table table-striped table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Username</th>
+      <th scope="col">ISBN</th>
+      <th scope="col">Book Name</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in reqs %}
+    <tr>
+      <th scope="row">{{ forloop.counter }}</th>
+      <td>{{row.customerID}}</td>
+      <td>{{row.ISBN}}</td>
+      <td>{{row.bookName}}</td>
+      <td>
+        <form id="{{row.customerID}}-{{row.ISBN}}-resolve-form" action="{% url 'admin-borrows-view' %}" method='post' enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="post_type" value="resolve">
+          <input type="hidden" name="customerID" value="{{row.customerID}}">
+          <input type="hidden" name="ISBN" value="{{row.ISBN}}">
+        </form>
+        <form id="{{row.customerID}}-{{row.ISBN}}-decline-form" action="{% url 'admin-borrows-view' %}" method='post' enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="post_type" value="decline">
+          <input type="hidden" name="customerID" value="{{row.customerID}}">
+          <input type="hidden" name="ISBN" value="{{row.ISBN}}">
+          <!-- <button type="submit" name="button">hsjh</button> -->
+        </form>
+        <div class="btn-group">
+
+          <button form="{{row.customerID}}-{{row.ISBN}}-resolve-form" class="btn btn-success" type="submit" name="resolve-button">Resolve</button>
+          <button form="{{row.customerID}}-{{row.ISBN}}-decline-form" class="btn btn-danger" type="submit" name="decline-button">Decline</button>
+        </div>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if reqs|length == 0 %}
+<h5 class="text-secondary"><b>No Borrow Requests Available</b></h5>
+{% endif %}
+<br>
+<br>
+<hr>
+<h3>Occupied Books</h3>
+<table class="table table-striped table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">Item ID</th>
+      <th scope="col">ISBN</th>
+      <th scope="col">Book Name</th>
+      <th scope="col">Borrowed By</th>
+      <th scope="col">From</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in occupied_books %}
+    <tr>
+      <th scope="row">{{ row.borrowableItemID }}</th>
+      <td>{{row.ISBN}}</td>
+      <td>{{row.bookName}}</td>
+      <td>{{row.customerID}}</td>
+      <td>{{row.startDate}}</td>
+      <td>
+        <form id="{{row.customerID}}-{{row.borrowableItemID}}-received-form" action="{% url 'admin-borrows-view' %}" method='post' enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="post_type" value="received">
+            <input type="hidden" name="customerID" value="{{row.customerID}}">
+            <input type="hidden" name="borrowableItemID" value="{{row.borrowableItemID}}">
+        </form>
+        <button form="{{row.customerID}}-{{row.borrowableItemID}}-received-form" class="btn btn-success" type="button submit" name="received-button">Received</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if occupied_books|length == 0 %}
+<h5 class="text-secondary"><b>No Occupied Books Found</b></h5>
+{% endif %}
+<br>
+<br>
+<hr>
+<h3>Available Books</h3>
+<table class="table table-striped table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">Item ID</th>
+      <th scope="col">ISBN</th>
+      <th scope="col">Book Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in available_books %}
+    <tr>
+      <th scope="row">{{ row.borrowableItemID }}</th>
+      <td>{{row.ISBN}}</td>
+      <td>{{row.bookName}}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if available_books|length == 0 %}
+<h5 class="text-secondary"><b>No Books Available</b></h5>
+{% endif %}
+
+<br>
+<br>
+<hr>
+<h3>Did not return</h3>
+<table class="table table-striped table-hover">
+  <thead class="table-dark">
+    <tr>
+      <th scope="col">Item ID</th>
+      <th scope="col">Book Name</th>
+      <th scope="col">Last Borrowed By</th>
+      <th scope="col">Issue Date</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for row in expired_books %}
+    <tr>
+      <th scope="row">{{ row.borrowableItemID }}</th>
+      <td>{{row.bookName}}</td>
+      <td>{{row.customerID}}</td>
+      <td>{{row.issueDate}}</td>
+      <td>
+        <form id="{{row.customerID}}-{{row.borrowableItemID}}-received-expired-form" action="{% url 'admin-borrows-view' %}" method='post' enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="post_type" value="received-expired-book">
+            <input type="hidden" name="expiredID" value="{{row.expiredID}}">
+            <input type="hidden" name="customerID" value="{{row.customerID}}">
+            <input type="hidden" name="borrowableItemID" value="{{row.borrowableItemID}}">
+        </form>
+        <button form="{{row.customerID}}-{{row.borrowableItemID}}-received-expired-form" class="btn btn-success" type="button submit" name="received-button">Received</button>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if expired_books|length == 0 %}
+<h5 class="text-secondary"><b>No Expired Books Found</b></h5>
+{% endif %}
+
+{% endblock %}

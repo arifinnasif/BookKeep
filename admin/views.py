@@ -39,6 +39,11 @@ class AdminCustomerListView(View):
     @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        
+        cursor = connection.cursor()
         sql = """SELECT CUSTOMER_ID, C.NAME, C.ADDRESS, C.EMAIL, C.ACCOUNT_CREATED_ON, S.MEMBERSHIP_BOUGHT_ON, P.NAME
                 FROM CUSTOMERS C
                 LEFT OUTER JOIN SUBSCRIBERS S USING (CUSTOMER_ID)
@@ -156,6 +161,17 @@ class AdminBookListView(View):
             cursor.close()
             return redirect('admin-book-list-view')
 
+        elif post_type == 'add-to-borrowable':
+            cursor = connection.cursor()
+            ret = cursor.callfunc("ADD_BOOK_TO_BORROWABLE", int, [isbn])
+            cursor.close()
+
+            if ret == 0:
+                messages.error(request, 'Not enough books')
+            else:
+                messages.success(request, 'Added to borrowables')
+            return redirect('admin-book-list-view')
+
 
 
 
@@ -263,6 +279,9 @@ class AdminBookListView(View):
                 cursor.execute(sql, [isbn, i2.strip()])
                 cursor.close()
             messages.success(request, 'Successfully added')
+
+
+
 
         if uploaded_pic is not None:
             uploaded_pic_ext = uploaded_pic.name.split('.')[-1]
@@ -836,6 +855,303 @@ class AdminOfferListView(View):
             cursor.close()
 
         return redirect('admin-offer-list-view')
+
+
+class AdminBorrowsView(View):
+    @check_if_authorized_manager
+    def get(self, request):
+        # book currently occupied
+        # book that are available
+        # reqs with check flag
+
+        cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT BRS.BORROWABLE_ITEM_ID, BRS.CUSTOMER_ID, BKS.ISBN, BKS.NAME, BRS.START_DATE
+		    FROM BORROWS BRS
+            INNER JOIN BORROWABLE_ITEMS BRITMS ON (BRS.BORROWABLE_ITEM_ID = BRITMS.BORROWABLE_ITEM_ID)
+            INNER JOIN BOOKS BKS ON (BRITMS.ISBN = BKS.ISBN)
+            WHERE BRS.END_DATE IS NULL
+            ORDER BY BRS.START_DATE ASC
+	       """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        occupied_books = []
+        for r in result:
+            occupied_books.append({
+                "borrowableItemID" : r[0],
+                "customerID" : r[1],
+                "ISBN" : r[2],
+                "bookName" : r[3],
+                "startDate" : r[4].strftime('%Y-%m-%d %H:%M:%S'),
+            })
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT A.BORROWABLE_ITEM_ID, ISBN, B.NAME
+            FROM BORROWABLE_ITEMS A
+            INNER JOIN BOOKS B USING (ISBN)
+
+            WHERE A.BORROWABLE_ITEM_ID IN
+
+            (((SELECT BORROWABLE_ITEM_ID FROM BORROWABLE_ITEMS)
+            MINUS
+            (SELECT BORROWABLE_ITEM_ID FROM BORROWS WHERE END_DATE IS NULL))
+            MINUS
+            SELECT BORROWABLE_ITEM_ID FROM EXPIRED)
+	       """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+
+        available_books = []
+        for r in result:
+            available_books.append({
+                "borrowableItemID" : r[0],
+                "ISBN" : r[1],
+                "bookName" : r[2],
+            })
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT R.CUSTOMER_ID, ISBN, B.NAME FROM REQUESTS R INNER JOIN BOOKS B USING (ISBN)
+	       """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        reqs = []
+        for r in result:
+            # cursor = connection.cursor()
+            # sql = """
+            #     SELECT COUNT(*)
+		    #     FROM BORROWS A
+		    #     INNER JOIN BORROWABLE_ITEMS B USING(BORROWABLE_ITEM_ID)
+		    #     WHERE A.CUSTOMER_ID = %s AND B.ISBN = %s
+    	    #    """
+            # cursor.execute(sql, [r[0], r[1]])
+            # result2 = cursor.fetchall()
+            # cursor.close()
+            #
+            # asking_for_same_book=False
+            # if int(result2[0][0] != 0):
+            #     asking_for_same_book=True
+            reqs.append({
+                "customerID" : r[0],
+                "ISBN" : r[1],
+                "bookName" : r[2],
+            })
+
+        cursor = connection.cursor()
+        sql = """
+            SELECT E.CUSTOMER_ID, E.BORROWABLE_ITEM_ID, E.ISSUE_DATE, E.EXPIRED_ID,
+		          (SELECT NAME FROM BOOKS B
+		                WHERE B.ISBN = (SELECT BR.ISBN FROM BORROWABLE_ITEMS BR WHERE BR.BORROWABLE_ITEM_ID = E.BORROWABLE_ITEM_ID ) )
+            FROM EXPIRED E
+            ORDER BY E.ISSUE_DATE DESC
+	       """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        expired_books = []
+        for r in result:
+            expired_books.append({
+                "customerID" : r[0],
+                "borrowableItemID" : r[1],
+                "issueDate" : r[2].strftime('%Y-%m-%d %H:%M:%S'),
+                "bookName" : r[4],
+                "expiredID" :r[3],
+            })
+
+        context = {
+            "occupied_books" : occupied_books,
+            "available_books" : available_books,
+            "expired_books" : expired_books,
+            "reqs" : reqs,
+        }
+
+        return render(request, 'admin_panel_borrows.html', context)
+
+    @check_if_authorized_manager
+    def post(self, request):
+        print(request.POST)
+        post_type = request.POST.get('post_type')
+        customerID = request.POST.get('customerID')
+
+
+        if post_type == 'received':
+            borrowableItemID = int(request.POST.get('borrowableItemID'))
+
+            cursor = connection.cursor()
+            sql =   """
+                UPDATE BORROWS SET END_DATE = %s WHERE CUSTOMER_ID = %s AND BORROWABLE_ITEM_ID = %s
+                """
+            cursor.execute(sql, [datetime.datetime.now(), customerID, borrowableItemID])
+            cursor.close()
+
+
+        elif post_type == 'resolve':
+            ISBN = request.POST.get('ISBN')
+            cursor = connection.cursor()
+            ret = cursor.callfunc("ACCEPT_BORROW_REQUEST", int, [customerID, ISBN, datetime.datetime.now()])
+            if ret == 0:
+                messages.success(request, 'Customer can now have the book')
+
+            elif ret == 1:
+                messages.error(request, 'Not a valid subscriber')
+
+            elif ret == 2:
+                messages.error(request, 'Quota limit crossed for this customer')
+
+            elif ret == 3:
+                messages.error(request, 'Book not available')
+
+            elif ret == 4:
+                messages.error(request, 'Already borrowed')
+
+
+        elif post_type == 'decline':
+            ISBN = request.POST.get('ISBN')
+            cursor = connection.cursor()
+            sql =   """
+                DELETE FROM REQUESTS WHERE CUSTOMER_ID = %s AND ISBN = %s
+                """
+            cursor.execute(sql, [customerID, ISBN])
+            cursor.close()
+
+        elif post_type == 'received-expired-book':
+            expiredID = request.POST.get('expiredID')
+            cursor = connection.cursor()
+            sql =   """
+                DELETE FROM EXPIRED WHERE EXPIRED_ID = %s
+                """
+            cursor.execute(sql, [expiredID])
+            cursor.close()
+
+
+        return redirect('admin-borrows-view')
+
+class AdminPlanListView(View):
+    @check_if_authorized_manager
+    def get(self, request):
+        cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql =   """
+            SELECT P.PLAN_ID, P.NAME, P.PERIOD, P.BORROW_LIMIT, P.PRICE, (SELECT COUNT(*) FROM SUBSCRIBERS S WHERE S.PLAN_ID = P.PLAN_ID)
+            FROM PLANS P
+            """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        planInfo = []
+        for r in result:
+            planInfo.append({
+                "planID" : r[0],
+                "planName" : r[1],
+                "period" : r[2],
+                "borrowLimit" : r[3],
+                "price" : r[4],
+                "activeSubscriptionCount" : r[5],
+            })
+
+        context = {
+            "planInfo" : planInfo,
+        }
+
+        return render(request, 'admin_panel_plan_list.html', context)
+
+    @check_if_authorized_manager
+    def post(self, request):
+        cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        print(request.POST)
+
+        post_type = request.POST.get('post_type')
+
+
+        if post_type == "delete":
+            planID = int(request.POST.get('planID'))
+            cursor = connection.cursor()
+            sql =   """
+                SELECT COUNT(*) FROM SUBSCRIBERS WHERE PLAN_ID = %s
+                """
+            cursor.execute(sql, [planID])
+            result = cursor.fetchall()
+            cursor.close()
+
+            if int(result[0][0]) != 0:
+                messages.error(request, 'Cannot delete a plan that has some subscriptions')
+                return redirect('admin-plan-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                DELETE FROM PLANS WHERE PLAN_ID =%s
+                """
+            cursor.execute(sql, [planID])
+            cursor.close()
+            messages.success(request, 'Successfully deleted')
+
+        elif post_type == 'edit':
+            try:
+                planID = int(request.POST.get('planID'))
+                planName = request.POST.get('planName')
+                period = int(request.POST.get('period'))
+                borrowLimit = int(request.POST.get('borrowLimit'))
+                price = float(request.POST.get('price'))
+
+                if len(planName) == 0:
+                    raise ValueError
+            except ValueError:
+                messages.error(request, 'Fill in the form correctly')
+                return redirect('admin-plan-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                UPDATE PLANS SET NAME = %s, PERIOD = %s, BORROW_LIMIT = %s, PRICE = %s
+                WHERE PLAN_ID = %s
+                """
+            cursor.execute(sql, [planName, period, borrowLimit, price, planID])
+            cursor.close()
+            messages.success(request, 'Updated Successfully')
+
+        elif post_type == 'add':
+            try:
+                planName = request.POST.get('planName')
+                period = int(request.POST.get('period'))
+                borrowLimit = int(request.POST.get('borrowLimit'))
+                price = float(request.POST.get('price'))
+
+                if len(planName) == 0:
+                    raise ValueError
+            except ValueError:
+                messages.error(request, 'Fill in the form correctly')
+                return redirect('admin-plan-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                INSERT INTO PLANS(NAME, PERIOD, BORROW_LIMIT, PRICE)
+                VALUES(%s, %s, %s, %s)
+                """
+            cursor.execute(sql, [planName, period, borrowLimit, price])
+            cursor.close()
+            messages.success(request, 'Added Successfully')
+
+
+
+        return redirect('admin-plan-list-view')
 
 
 # class Test(View):

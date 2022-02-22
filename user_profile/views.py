@@ -83,7 +83,7 @@ class BookOrderList:
         if entry[6] is None:
             self.deliverydate = ""
         else:
-            self.deliverydate = entry[6].strftime("%d %B %Y")     
+            self.deliverydate = entry[6].strftime("%d %B %Y")
 
 
 class MyWishListView(View):
@@ -347,7 +347,7 @@ class MyCartView(View):
 
         if len(result) == 0:
             messages.error(request, 'Your Cart is Empty!')
-        
+
         user_cart = []
         checkout_cart = []
         subtotal = 0
@@ -359,13 +359,13 @@ class MyCartView(View):
             for j in ongoingOfferInfo:
                 if val[0] in j['books_with_this_offer']:
                     # per book discount
-                    discount = float(val[4]) * float(j['discount_pct']) 
+                    discount = float(val[4]) * float(j['discount_pct'])
                     # discounted price per book
                     val.append("{:.2f}".format(round((float(val[4]) - discount), 2)))
                 else:
                     discount = 0.00
                     val.append(val[4])  # same price as before
-            
+
             price = float(val[4])*int(val[3])
             discount = discount*int(val[3])
 
@@ -413,7 +413,7 @@ class MyCartView(View):
             if result == 0:
                 messages.error(
                     request, 'Something went wrong. Please try again!')
-                
+
             else:
 
                 return_msg = cursor.var(str).var
@@ -433,17 +433,17 @@ class MyCartView(View):
                 # print(isbn)
             except ValueError:
                 messages.error(request, 'Something went wrong. Please try again!')
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))  
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
             cursor = connection.cursor()
-            sql = """DELETE 
+            sql = """DELETE
                     FROM CARTS
                     WHERE CUSTOMER_ID = %s AND ISBN = %s"""
             cursor.execute(sql, [username, isbn])
             messages.info(request, 'Item Deleted Successfully!')
             connection.close()
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
-        
+
         elif request.POST.get('post_type') == 'order':
             try:
                 # print(username)
@@ -460,7 +460,7 @@ class MyCartView(View):
                     # print(r[2])
                     cursor = connection.cursor()
                     sql = """SELECT QUANTITY, NAME FROM BOOKS WHERE ISBN = %s"""
-                    
+
                     cursor.execute(sql,[r[1]])
                     result2 = cursor.fetchall()
                     stock = result2[0][0]
@@ -497,23 +497,23 @@ class MyOrderView(View):
         pending_list = []
         completed_dict = {}
         pending_dict = {}
-        
+
         if len(result) == 0:
             messages.error(request, 'You Haven\'t Ordered Any Book Yet!')
         else:
             for r in result:
                 # print(r)
-                if r[-1] is None:   # the order is still pending 
+                if r[-1] is None:   # the order is still pending
                     pending_list.append(BookOrderList(r))
                 else:
                     completed_list.append(BookOrderList(r))
-            
+
             if len(completed_list) == 0:
                 messages.error(request, 'You Don\'t Have Any Completed Order!')
             if len(pending_list) == 0:
                 messages.error(request, 'You Don\'t Have Any Pending Order!')
 
-            
+
             for i in completed_list:
                 if i.oid not in completed_dict.keys():
                     values = []
@@ -527,7 +527,7 @@ class MyOrderView(View):
                     totalprice = totalprice + float(i.price)
                     values.append(i)
                     completed_dict[i.oid] = [values,totalprice]
-            
+
             for i in pending_list:
                 if i.oid not in pending_dict.keys():
                     values = []
@@ -541,7 +541,7 @@ class MyOrderView(View):
                     values.append(i)
                     pending_dict[i.oid] = [values,totalprice]
 
-        
+
         userfullname = None
         if request.session.get('usertype') == 'customer':
             cursor = connection.cursor()
@@ -560,7 +560,7 @@ class MyOrderView(View):
             "completed": completed_dict,
             "pending": pending_dict,
         }
-        
+
         return render(request, 'user_profile_orders.html', context)
 
 
@@ -569,16 +569,16 @@ class MyAccountView(View):
 
         cursor = connection.cursor()
         sql = """SELECT *
-                FROM CUSTOMERS C 
+                FROM CUSTOMERS C
                 WHERE CUSTOMER_ID = %s"""
         cursor.execute(sql, [cid])
         result = cursor.fetchall()
         cursor.close()
         # print(result)
-        
+
         cursor = connection.cursor()
         sql = """SELECT CONTACT_NUMBER
-                FROM CUSTOMER_CONTACT_NUMBER 
+                FROM CUSTOMER_CONTACT_NUMBER
                 WHERE CUSTOMER_ID = %s"""
         cursor.execute(sql, [cid])
         result_2 = cursor.fetchall()
@@ -598,7 +598,7 @@ class MyAccountView(View):
             for info in result:
                 accountInfo.append(AccountInfo(info, contact_no))
 
-        
+
 
         userfullname = None
         if request.session.get('usertype') == 'customer':
@@ -620,5 +620,3 @@ class MyAccountView(View):
         }
 
         return render(request, 'user_profile_account.html', context)
-
-        
