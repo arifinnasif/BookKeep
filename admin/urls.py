@@ -10,6 +10,7 @@ urlpatterns = [
     path('manage/order-log/', views.AdminOrderLogView.as_view(), name = 'admin-order-log-view'),
     path('manage/offer-list/', views.AdminOfferListView.as_view(), name = 'admin-offer-list-view'),
     path('manage/borrows/', views.AdminBorrowsView.as_view(), name = 'admin-borrows-view'),
+    path('manage/plan-list/', views.AdminPlanListView.as_view(), name = 'admin-plan-list-view'),
 
     # path('test/', views.Test.as_view(), name = 'test'),
 ]

@@ -1001,6 +1001,120 @@ class AdminBorrowsView(View):
 
         return redirect('admin-borrows-view')
 
+class AdminPlanListView(View):
+    def get(self, request):
+        cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        cursor = connection.cursor()
+        sql =   """
+            SELECT P.PLAN_ID, P.NAME, P.PERIOD, P.BORROW_LIMIT, P.PRICE, (SELECT COUNT(*) FROM SUBSCRIBERS S WHERE S.PLAN_ID = P.PLAN_ID)
+            FROM PLANS P
+            """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        planInfo = []
+        for r in result:
+            planInfo.append({
+                "planID" : r[0],
+                "planName" : r[1],
+                "period" : r[2],
+                "borrowLimit" : r[3],
+                "price" : r[4],
+                "activeSubscriptionCount" : r[5],
+            })
+
+        context = {
+            "planInfo" : planInfo,
+        }
+
+        return render(request, 'admin_panel_plan_list.html', context)
+
+    def post(self, request):
+        cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        print(request.POST)
+
+        post_type = request.POST.get('post_type')
+
+
+        if post_type == "delete":
+            planID = int(request.POST.get('planID'))
+            cursor = connection.cursor()
+            sql =   """
+                SELECT COUNT(*) FROM SUBSCRIBERS WHERE PLAN_ID = %s
+                """
+            cursor.execute(sql, [planID])
+            result = cursor.fetchall()
+            cursor.close()
+
+            if int(result[0][0]) != 0:
+                messages.error(request, 'Cannot delete a plan that has some subscriptions')
+                return redirect('admin-plan-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                DELETE FROM PLANS WHERE PLAN_ID =%s
+                """
+            cursor.execute(sql, [planID])
+            cursor.close()
+            messages.success(request, 'Successfully deleted')
+
+        elif post_type == 'edit':
+            try:
+                planID = int(request.POST.get('planID'))
+                planName = request.POST.get('planName')
+                period = int(request.POST.get('period'))
+                borrowLimit = int(request.POST.get('borrowLimit'))
+                price = float(request.POST.get('price'))
+
+                if len(planName) == 0:
+                    raise ValueError
+            except ValueError:
+                messages.error(request, 'Fill in the form correctly')
+                return redirect('admin-plan-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                UPDATE PLANS SET NAME = %s, PERIOD = %s, BORROW_LIMIT = %s, PRICE = %s
+                WHERE PLAN_ID = %s
+                """
+            cursor.execute(sql, [planName, period, borrowLimit, price, planID])
+            cursor.close()
+            messages.success(request, 'Updated Successfully')
+
+        elif post_type == 'add':
+            try:
+                planName = request.POST.get('planName')
+                period = int(request.POST.get('period'))
+                borrowLimit = int(request.POST.get('borrowLimit'))
+                price = float(request.POST.get('price'))
+
+                if len(planName) == 0:
+                    raise ValueError
+            except ValueError:
+                messages.error(request, 'Fill in the form correctly')
+                return redirect('admin-plan-list-view')
+
+            cursor = connection.cursor()
+            sql =   """
+                INSERT INTO PLANS(NAME, PERIOD, BORROW_LIMIT, PRICE)
+                VALUES(%s, %s, %s, %s)
+                """
+            cursor.execute(sql, [planName, period, borrowLimit, price])
+            cursor.close()
+            messages.success(request, 'Added Successfully')
+
+
+
+        return redirect('admin-plan-list-view')
+
+
 # class Test(View):
 #     def get(self, request):
 #         return render(request, 'test.html')
