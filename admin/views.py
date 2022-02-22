@@ -39,6 +39,11 @@ class AdminCustomerListView(View):
     @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        
+        cursor = connection.cursor()
         sql = """SELECT CUSTOMER_ID, C.NAME, C.ADDRESS, C.EMAIL, C.ACCOUNT_CREATED_ON, S.MEMBERSHIP_BOUGHT_ON, P.NAME
                 FROM CUSTOMERS C
                 LEFT OUTER JOIN SUBSCRIBERS S USING (CUSTOMER_ID)
