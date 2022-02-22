@@ -588,12 +588,25 @@ class AdminOrderLogView(View):
 
     @check_if_authorized_manager
     def post(self, request):
-        cursor = connection.cursor()
-        sql =   """
-                UPDATE ORDERS SET DELIVERY_DATE = %s WHERE ORDER_ID = %s
-                """
-        cursor.execute(sql,[datetime.datetime.now(), request.POST.get('orderID')])
-        cursor.close()
+        print(request.POST)
+        post_type = request.POST.get('post_type')
+
+        if post_type == 'delivered':
+            cursor = connection.cursor()
+            sql =   """
+                    UPDATE ORDERS SET DELIVERY_DATE = %s WHERE ORDER_ID = %s
+                    """
+            cursor.execute(sql,[datetime.datetime.now(), request.POST.get('orderID')])
+            cursor.close()
+
+        elif post_type == 'cancel':
+            cursor = connection.cursor()
+            sql =   """
+                    DELETE FROM ORDERS WHERE ORDER_ID = %s AND DELIVERY_DATE IS NULL
+                    """
+            cursor.execute(sql,[request.POST.get('orderID')])
+            cursor.close()
+
         return redirect('admin-order-log-view')
 
 
