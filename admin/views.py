@@ -1002,6 +1002,7 @@ class AdminBorrowsView(View):
         return redirect('admin-borrows-view')
 
 class AdminPlanListView(View):
+    @check_if_authorized_manager
     def get(self, request):
         cursor = connection.cursor()
         cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
@@ -1033,6 +1034,7 @@ class AdminPlanListView(View):
 
         return render(request, 'admin_panel_plan_list.html', context)
 
+    @check_if_authorized_manager
     def post(self, request):
         cursor = connection.cursor()
         cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
