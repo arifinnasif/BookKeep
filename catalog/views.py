@@ -88,6 +88,17 @@ class HomepageView(View):
 
         random.shuffle(books)
 
+        cursor = connection.cursor()
+        # adding ISBN to the query
+        sql = "SELECT DISTINCT B_TYPE FROM BOOK_TYPE"
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        types = []
+        for r in result:
+            types.append(str(r[0]))
+        
 
         userfullname = None
         if request.session.get('usertype') == 'customer':
@@ -106,11 +117,24 @@ class HomepageView(View):
             "userfullname" : userfullname,
             "usertype" : usertype,
             "books" : books,
+            "types" : types,
         }
 
         return render(request, 'catalog.html', context)
 
     def post(self, request):
+
+        ######### TYPES FILTER #########
+        cursor = connection.cursor()
+        # adding ISBN to the query
+        sql = "SELECT DISTINCT B_TYPE FROM BOOK_TYPE"
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        types = []
+        for r in result:
+            types.append(str(r[0]))
         
         ####### OFFER CHECK #########
         cursor = connection.cursor()
@@ -239,6 +263,33 @@ class HomepageView(View):
             print(e)
             messages.error(request, 'Error while sorting! Please try again.')
 
+        book_types = request.POST.get('types')
+        if book_types is not None and book_types != '':
+            try:
+                book_types = tuple(i for i in book_types.split(','))                
+                print(book_types)
+                cursor = connection.cursor()
+                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN
+                            FROM BOOKS B 
+                            LEFT OUTER JOIN WRITES W USING(ISBN)
+                            JOIN AUTHORS A USING (AUTHOR_ID)
+                            WHERE ISBN IN (		
+                                SELECT DISTINCT ISBN
+                                FROM BOOK_TYPE
+                                WHERE B_TYPE IN %s
+                            )"""
+
+                cursor.execute(sql, book_types)
+                result = cursor.fetchall()
+                print(result)
+                cursor.close()
+                messages.info(request, 'Books Filtered By Genre: ' + book_types[0])
+
+            except Exception as e:
+                print(e)
+                messages.error(request, 'Error while filtering! Please try again.')
+        
+
         books = []
         for r in result:
             val = [i for i in r]
@@ -261,5 +312,6 @@ class HomepageView(View):
             "userfullname" : userfullname,
             "usertype" : usertype,
             "books" : books,
+            "types" : types,
         }
         return render(request, 'catalog.html', context)
