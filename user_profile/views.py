@@ -5,6 +5,8 @@ from django.views import View
 from django.contrib import messages
 import datetime
 
+from custom_utils import check_if_specific_authorized_customer
+
 
 # Create your views here.
 
@@ -97,6 +99,7 @@ class BookOrderList:
 
 
 class MyWishListView(View):
+    @check_if_specific_authorized_customer
     def get(self, request, cid):
 
         cursor = connection.cursor()
@@ -136,7 +139,7 @@ class MyWishListView(View):
             if r[3] < datetime.datetime.now() and r[3]+datetime.timedelta(days = int(r[4])) > datetime.datetime.now():
                 ongoingOfferInfo.append(temp_dict)
         # print(ongoingOfferInfo)
-        
+
         cursor = connection.cursor()
         sql = """SELECT ISBN, B.NAME BOOK, A.NAME AUTHOR, B.PRICE
                 FROM WISHLISTS W
@@ -158,20 +161,20 @@ class MyWishListView(View):
             for j in ongoingOfferInfo:
                 if val[0] in j['books_with_this_offer']:
                     # per book discount
-                    discount = float(val[3]) * float(j['discount_pct']) 
+                    discount = float(val[3]) * float(j['discount_pct'])
                     # discounted price per book
                     val.append("{:.2f}".format(round((float(val[3]) - discount), 2)))
                 else:
                     discount = 0.00
                     val.append(val[3])  # same price as before
-            
+
             # price = float(val[4])*int(val[3])
             # discount = discount*int(val[3])
 
             user_wishlist.append(BookInTheWishlist(val))
 
 
-        
+
         userfullname = None
         if request.session.get('usertype') == 'customer':
             cursor = connection.cursor()
@@ -189,10 +192,10 @@ class MyWishListView(View):
             "usertype": usertype,
             "wishlist": user_wishlist,
         }
-        
+
         return render(request, 'user_profile_wishlist.html', context)
 
-    
+    @check_if_specific_authorized_customer
     def post(self, request, cid):
         username = str(request.session['username'])
 
@@ -214,7 +217,7 @@ class MyWishListView(View):
             if result == 0:
                 messages.error(
                     request, 'Something went wrong. Please try again!')
-                
+
             else:
 
                 return_msg = cursor.var(str).var
@@ -226,7 +229,7 @@ class MyWishListView(View):
                 connection.close()
 
                 cursor = connection.cursor()
-                sql = """DELETE 
+                sql = """DELETE
                         FROM WISHLISTS
                         WHERE CUSTOMER_ID = %s AND ISBN = %s"""
                 cursor.execute(sql, [username, isbn])
@@ -234,17 +237,17 @@ class MyWishListView(View):
 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-        
+
         elif request.POST.get('post_type') == 'remove':
             try:
                 isbn = str(request.POST.get('isbn'))
                 # print(isbn)
             except ValueError:
                 messages.error(request, 'Something went wrong. Please try again!')
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))  
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
             cursor = connection.cursor()
-            sql = """DELETE 
+            sql = """DELETE
                     FROM WISHLISTS
                     WHERE CUSTOMER_ID = %s AND ISBN = %s"""
             cursor.execute(sql, [username, isbn])
@@ -252,7 +255,7 @@ class MyWishListView(View):
             connection.close()
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-        
+
         elif request.POST.get('post_type') == 'wish' :
             try:
                 isbn = str(request.POST.get('isbn'))
@@ -270,12 +273,12 @@ class MyWishListView(View):
             if result != 0:
                 messages.error(
                     request, 'You Have Already Wishlisted This!')
-                
+
             else:
 
                 cursor = connection.cursor()
-                sql = """INSERT 
-                        INTO WISHLISTS (CUSTOMER_ID, ISBN) 
+                sql = """INSERT
+                        INTO WISHLISTS (CUSTOMER_ID, ISBN)
                         VALUES (%s, %s)"""
                 cursor.execute(sql, [username, isbn])
                 connection.close()
@@ -284,10 +287,11 @@ class MyWishListView(View):
 
             return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-        
+
 
 
 class MyCartView(View):
+    @check_if_specific_authorized_customer
     def get(self, request, cid):
 
         userfullname = None
@@ -402,6 +406,7 @@ class MyCartView(View):
 
         return render(request, 'user_profile_cart.html', context)
 
+    @check_if_specific_authorized_customer
     def post(self, request, cid):
         username = str(request.session['username'])
 
@@ -493,6 +498,7 @@ class MyCartView(View):
 
 
 class MyOrderView(View):
+    @check_if_specific_authorized_customer
     def get(self, request, cid):
         cursor = connection.cursor()
         sql = """SELECT ORDER_ID, ISBN, B.NAME BOOK, OB.UNIT_PRICE, OB.QUANTITY, O.ORDERING_DATE, O.DELIVERY_DATE
@@ -575,6 +581,7 @@ class MyOrderView(View):
 
 
 class MyAccountView(View):
+    @check_if_specific_authorized_customer
     def get(self, request, cid):
 
         cursor = connection.cursor()

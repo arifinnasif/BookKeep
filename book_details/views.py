@@ -122,14 +122,14 @@ class UserBookDetailsView(View):
             if r[3] < datetime.datetime.now() and r[3]+datetime.timedelta(days = int(r[4])) > datetime.datetime.now():
                 ongoingOfferInfo.append(temp_dict)
                 # messages.info(request, temp_dict['offerName'] + ' Ongoing')
-        print(ongoingOfferInfo)    
+        print(ongoingOfferInfo)
 
         #############################
 
 
         cursor = connection.cursor()
         sql_book = """SELECT B.NAME, ISBN, A.NAME AUTHOR, B.EDITION, B.PRICE, B.PAGE_COUNT, B.RELEASE_DATE, B.QUANTITY, P.NAME PUBLISHER
-                FROM BOOKS B 
+                FROM BOOKS B
                 LEFT OUTER JOIN WRITES USING (ISBN)
                 LEFT OUTER JOIN AUTHORS A USING (AUTHOR_ID)
                 LEFT OUTER JOIN PUBLISHERS P USING (PUBLISHER_ID)
@@ -137,7 +137,7 @@ class UserBookDetailsView(View):
         cursor.execute(sql_book, [isbn])
         result = cursor.fetchall()
 
-        
+
         sql_genre = """SELECT B_TYPE
                 FROM BOOKS B
                 LEFT OUTER JOIN BOOK_TYPE BT USING (ISBN)
@@ -146,7 +146,7 @@ class UserBookDetailsView(View):
         type = cursor.fetchall()
 
         sql_author = """SELECT A.NAME, A.DOB, A.DOD, A.ABOUT
-                        FROM BOOKS B 
+                        FROM BOOKS B
                         LEFT OUTER JOIN WRITES W USING (ISBN)
                         LEFT OUTER JOIN AUTHORS A USING (AUTHOR_ID)
                         WHERE ISBN = %s"""
@@ -175,7 +175,7 @@ class UserBookDetailsView(View):
             for j in ongoingOfferInfo:
                 if val[1] in j['books_with_this_offer']:
                     # per book discount
-                    discount = float(val[4]) * float(j['discount_pct']) 
+                    discount = float(val[4]) * float(j['discount_pct'])
                     # discounted price per book
                     val.append("{:.2f}".format(round((float(val[4]) - discount), 2)))
                     val.append(j['offerName'])
@@ -190,8 +190,8 @@ class UserBookDetailsView(View):
             authorInfo.append(AuthorDetail(r))
 
         # userfullname = None
-        
-        
+
+
         sql = """SELECT C.NAME, CUSTOMER_ID, R.ISBN, R.RATING, R.FEEDBACK
                  FROM CUSTOMERS C
                  LEFT OUTER JOIN REVIEWS R USING (CUSTOMER_ID)
@@ -200,7 +200,7 @@ class UserBookDetailsView(View):
         result = cursor.fetchall()
         cursor.close()
         print(result)
-            
+
         user_feedback = []
         for r in result:
             user_feedback.append(UserReview(r))
@@ -217,8 +217,59 @@ class UserBookDetailsView(View):
 
         username = request.session.get('username')
         usertype = request.session.get('usertype', default='guest')
-        
-        
+
+        cursor = connection.cursor()
+        cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
+        cursor.close()
+
+        isSubscriber = False
+        isRequestable = False
+
+        if usertype != "guest" and username is not None and len(username) != 0:
+            cursor = connection.cursor()
+            sql = """SELECT COUNT(*) FROM SUBSCRIBERS WHERE CUSTOMER_ID = %s"""
+            cursor.execute(sql,[username])
+            result = cursor.fetchall()
+            cursor.close()
+
+            if int(result[0][0]) != 0:
+                isSubscriber = True
+
+        if isSubscriber:
+            isRequestable = True
+            cursor = connection.cursor()
+            sql = """
+                SELECT COUNT(*)
+                FROM REQUESTS
+                WHERE CUSTOMER_ID = %s
+                AND ISBN = %s
+                """
+            cursor.execute(sql,[username, str(isbn)])
+            result = cursor.fetchall()
+            cursor.close()
+
+            cnt_books_in_requests = int(result[0][0])
+
+            cursor = connection.cursor()
+            sql = """
+                SELECT COUNT(*)
+                FROM BORROWABLE_ITEMS
+                WHERE ISBN = %s
+                AND BORROWABLE_ITEM_ID IN (
+                    SELECT BORROWABLE_ITEM_ID FROM BORROWS WHERE CUSTOMER_ID = %s
+                    )
+                """
+            cursor.execute(sql,[str(isbn), username])
+            result = cursor.fetchall()
+            cursor.close()
+
+            cnt_books_in_borrows = int(result[0][0])
+
+            if cnt_books_in_requests != 0 or cnt_books_in_borrows != 0:
+                isRequestable = False
+
+
+
 
         context = {
             "bookLongInfo": bookLongInfo,
@@ -228,14 +279,16 @@ class UserBookDetailsView(View):
             "userfullname": userfullname,
             "usertype": usertype,
             "feedback": user_feedback,
+            "isSubscriber" : isSubscriber, # dont show any request button if isSubscriber is False
+            "isRequestable" : isRequestable, # disable request button if isSubscriber is True and isRequestable is False
         }
 
         return render(request, 'book_details.html', context)
 
-    
-    
+
+
     def post(self, request, isbn):
-        
+
         username = str(request.session['username'])
         try:
             rating = int(request.POST.get('rating'))
@@ -244,7 +297,7 @@ class UserBookDetailsView(View):
                 cursor = connection.cursor()
                 return_msg = cursor.var(str).var
                 cursor.callproc("POST_REVIEW", [username, str(isbn), rating, review, return_msg])
-                msg = return_msg.getvalue()   
+                msg = return_msg.getvalue()
                 messages.info(request, msg)
                 connection.commit()
                 print(username, isbn, rating, review)
@@ -252,5 +305,26 @@ class UserBookDetailsView(View):
         except:
             quantity = int(request.POST.get('quantity'))
             print(quantity)
+
+        ### check if the post is of request type
+        is_request = False
+        if is_request:
+            cursor = connection.cursor()
+            ret = cursor.callfunc("REQUEST_TO_BORROW", [username, str(isbn), datetime.datetime.now()])
+            cursor.close()
+
+            if ret == 0:
+                # success
+                messages.success(request, "Successfully requested!")
+            elif ret == 1:
+                # not a sub
+                messages.error(request, "You are not a subscriber or your subscription has expired")
+            elif ret == 2:
+                # already requested (pending)
+                messages.warning(request, "Your request is pending. Request not made")
+            elif ret ==3:
+                # already borrowed
+                messages.error(request, "You have already borrowed this book")
+
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
