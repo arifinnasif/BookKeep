@@ -10,9 +10,9 @@
 {% block content %}
 
 <style>
-    .footer{
-    padding-left: 18%;
-  }
+    .footer {
+        padding-left: 18%;
+    }
 </style>
 
 <div class="container-fluid">
@@ -21,7 +21,7 @@
         <!-- <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2"> -->
         <div id="sidebar" class="col-2 position-fixed d-flex flex-column flex-shrink-0 p-3 text-white bg-dark"
             style="width: 280px; top: 60px; bottom: 0px; position: fixed;">
-            <a id="user-profile" href="{% url 'user-profile' cid=username %}"
+            <a id="user-profile" href="{% url 'user-profile-account' cid=username %}"
                 class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
                 <svg class="bi me-2" width="40" height="32">
                     <use xlink:href="#bootstrap" />
@@ -43,7 +43,8 @@
                 </li>
                 <li>
                     <a id="my-wishlist" href="{% url 'user-profile-wishlist' cid=username %}"
-                        class="nav-link text-white {% block my-wishlist-anchor-class %}{% endblock %}" aria-current="page">
+                        class="nav-link text-white {% block my-wishlist-anchor-class %}{% endblock %}"
+                        aria-current="page">
                         <svg class="bi me-2" width="24" height="24">
                             <use xlink:href="#home" />
                         </svg>
@@ -61,18 +62,29 @@
                 </li>
                 <li>
                     <a id="book-list" href="{% url 'user-profile-orders' cid=username %}"
-                        class="nav-link text-white {% block my-orders-anchor-class %}{% endblock %}">
+                        class="nav-link text-white {% block my-orders-anchor-class %}{% endblock %}"
+                        aria-current="page">
                         <svg class="bi me-2" width="24" height="24">
                             <use xlink:href="#speedometer2" />
                         </svg>
                         My Orders
                     </a>
                 </li>
+                <li>
+                    <a id="book-list" href="{% url 'user-profile-borrows' cid=username %}"
+                        class="nav-link text-white {% block my-borrows-anchor-class %}{% endblock %}"
+                        aria-current="page">
+                        <svg class="bi me-2" width="24" height="24">
+                            <use xlink:href="#speedometer2" />
+                        </svg>
+                        My Borrows
+                    </a>
+                </li>
             </ul>
 
             <hr>
             <a href="{% url 'customer-logout-view' %}" class="nav-link bg-danger rounded text-center text-white">
-                
+
                 Logout
             </a>
         </div>
