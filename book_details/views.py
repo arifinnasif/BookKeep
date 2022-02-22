@@ -310,18 +310,18 @@ class UserBookDetailsView(View):
                 connection.commit()
                 print(username, isbn, rating, review)
                 connection.close()
-        
+
         if request.POST.get('post_type') == 'add':
             quantity = int(request.POST.get('quantity'))
             print(quantity)
 
         ### check if the post is of request type
-        
-            
+
+
         if request.POST.get('post_type') == 'request':
 
             cursor = connection.cursor()
-            ret = cursor.callfunc("REQUEST_TO_BORROW", [username, str(isbn), datetime.datetime.now()])
+            ret = cursor.callfunc("REQUEST_TO_BORROW", int, [username, str(isbn), datetime.datetime.now()])
             cursor.close()
 
             if ret == 0:
