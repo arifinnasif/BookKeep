@@ -1,3 +1,4 @@
+from operator import contains
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.db import connection
 from django.views import View
@@ -637,6 +638,7 @@ class MyAccountView(View):
             else:
                 for r in result_2:
                     contact_no.append(r[0])
+                    # print(r[0])
             for info in result:
                 accountInfo.append(AccountInfo(info, contact_no))
 
@@ -696,6 +698,38 @@ class MyAccountView(View):
                 messages.info(request, 'You have successfully bought a plan!')
                 connection.commit()
                 connection.close()
+
+        if request.POST.get('post_type') == 'edit':
+            try:
+                name = request.POST.get('fullname')
+                email = request.POST.get('email')
+                address = request.POST.get('fulladdress')
+                contact = request.POST.get('contact').split(',')
+                contact = [i.strip() for i in contact]
+            
+                
+                print(contact)
+
+                cursor = connection.cursor()
+                cursor.callproc('UPDATE_PERSONAL_INFO', [str(name), str(email), str(address), cid])
+                
+                sql = """DELETE FROM CUSTOMER_CONTACT_NUMBER
+			            WHERE CUSTOMER_ID = %s"""
+                cursor.execute(sql, [cid])
+
+                for c in contact:
+                    if c is not None and c != '':
+                        sql = """INSERT INTO CUSTOMER_CONTACT_NUMBER
+                        (CUSTOMER_ID, CONTACT_NUMBER) VALUES (%s, %s)"""
+                        cursor.execute(sql, [cid, str(c)])
+
+                cursor.close()        
+                messages.info(request, 'Your account information has been updated!')
+
+            except ValueError:
+                messages.error(
+                    request, 'Something went wrong. Please try again!')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
