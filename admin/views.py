@@ -42,7 +42,7 @@ class AdminCustomerListView(View):
         cursor.callproc("REMOVE_EXPIRED_SUBSCRIBERS", [datetime.datetime.now()])
         cursor.close()
 
-        
+
         cursor = connection.cursor()
         sql = """SELECT CUSTOMER_ID, C.NAME, C.ADDRESS, C.EMAIL, C.ACCOUNT_CREATED_ON, S.MEMBERSHIP_BOUGHT_ON, P.NAME
                 FROM CUSTOMERS C
@@ -55,8 +55,30 @@ class AdminCustomerListView(View):
 
 
         customerInfo = []
-        for r in result:
-            customerInfo.append(CustomerInfoModel(r))
+        for row in result:
+            cursor = connection.cursor()
+            sql = """
+                    SELECT CONTACT_NUMBER FROM CUSTOMER_CONTACT_NUMBER WHERE CUSTOMER_ID = %s
+                    """
+            cursor.execute(sql, [row[0]])
+            result2 = cursor.fetchall()
+            cursor.close()
+            contact_numbers = []
+            for row2 in result2:
+                contact_numbers.append(row2[0])
+
+            customerInfo.append({
+                "customerID" : row[0],
+                "name" : row[1],
+                "address" : "" if row[2] is None else row[2],
+                "email" : row[3],
+                "accountCreatedOn" : row[4].strftime('%Y-%m-%d %H:%M:%S'),
+                "planName" : "" if row[6] is None else row[6],
+                "membershipBoughtOn" : "" if row[6] is None else row[5].strftime('%Y-%m-%d %H:%M:%S'),
+                "contact_numbers" : contact_numbers,
+            })
+
+
 
         context = {
             "customerInfo" : customerInfo,

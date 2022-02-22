@@ -10,6 +10,7 @@
       <th scope="col">Username</th>
       <th scope="col">Name</th>
       <th scope="col">Address</th>
+      <th scope="col"></th>
       <th scope="col">Email</th>
       <th scope="col">Created On</th>
       <th scope="col">Plan</th>
@@ -22,6 +23,18 @@
       <th scope="row">{{row.customerID}}</th>
       <td>{{row.name}}</td>
       <td>{{row.address}}</td>
+      <td>
+        <div class="dropdown">
+          <button class="btn btn-outline-dark dropdown-toggle" type="button" id="{{row.customerID}}-dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+            Contacts
+          </button>
+          <ul class="dropdown-menu" aria-labelledby="{{row.customerID}}-dropdownMenuButton1">
+            {% for item in row.contact_numbers %}
+            <li><span class="dropdown-item">{{item}}</span></li>
+            {% endfor %}
+          </ul>
+        </div>
+      </td>
       <td>{{row.email}}</td>
       <td>{{row.accountCreatedOn}}</td>
       <td><span class="badge bg-success">{{row.planName}}</span></td>
