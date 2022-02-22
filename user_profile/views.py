@@ -41,6 +41,15 @@ class AccountInfo:
         self.contact = contact
 
 
+class PlanInfo:
+    def __init__(self, row):
+        self.id = row[0]
+        self.name = row[1]
+        self.period = row[2]
+        self.borrow_limit = row[3]
+        self.price = row[4]
+
+
 class BookInTheCart:
     def __init__(self, entry):
         self.isbn = entry[0]
@@ -570,6 +579,7 @@ class MyAccountView(View):
         cursor = connection.cursor()
         sql = """SELECT *
                 FROM CUSTOMERS C
+                LEFT OUTER JOIN SUBSCRIBERS S USING (CUSTOMER_ID)
                 WHERE CUSTOMER_ID = %s"""
         cursor.execute(sql, [cid])
         result = cursor.fetchall()
@@ -584,6 +594,38 @@ class MyAccountView(View):
         result_2 = cursor.fetchall()
         # print(result_2)
         cursor.close()
+
+        planInfo = []
+
+        if(result[0][-1]):
+            cursor = connection.cursor()
+            sql = """SELECT *
+                    FROM PLANS
+                    WHERE PLAN_ID = %s"""
+            cursor.execute(sql, [result[0][-1]])    
+            result_3 = cursor.fetchall()
+            cursor.close()   
+            
+            for r in result_3:
+                planInfo.append(PlanInfo(r))
+
+            # cursor = connection.cursor()
+            # sql = """SELECT COUNT(*)
+            #         FROM BORROWS
+            #         WHERE CUSTOMER_ID = %s"""
+            # cursor.execute(sql, [cid])
+ 
+        else:
+            cursor = connection.cursor()
+            sql = """SELECT *
+                    FROM PLANS
+                    """
+            cursor.execute(sql)    
+            result_3 = cursor.fetchall()
+            cursor.close()
+            for r in result_3:
+                planInfo.append(PlanInfo(r))
+
 
         accountInfo = []
         if len(result) == 0:
@@ -617,6 +659,92 @@ class MyAccountView(View):
             "username": username,
             "usertype": usertype,
             "accountInfo": accountInfo,
+            "planInfo": planInfo,
         }
 
         return render(request, 'user_profile_account.html', context)
+
+    
+    def post(self, request, cid):
+        username = str(request.session['username'])
+
+        if request.POST.get('post-type') == 'buy-plan' :
+            try:
+                id = int(request.POST.get('planID'))
+                print(id)
+            except ValueError:
+                messages.error(
+                    request, 'Something went wrong. Please try again!')
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+            cursor = connection.cursor()
+            sql = """SELECT COUNT(*) FROM SUBSCRIBERS WHERE CUSTOMER_ID = %s"""
+            cursor.execute(sql, [username])
+            result = cursor.fetchall()
+            print(result)
+            cursor.close()
+            if result == 0:
+                messages.error(
+                    request, 'You already have a current plan!')
+
+            else:
+                cursor = connection.cursor()
+                sql = """INSERT INTO SUBSCRIBERS (CUSTOMER_ID, MEMBERSHIP_BOUGHT_ON, PLAN_ID)
+                        VALUES(%s, %s, %s)"""
+                
+                cursor.execute(sql, [username, datetime.datetime.now(), id])
+                messages.info(request, 'You have successfully bought a plan!')
+                connection.commit()
+                connection.close()
+
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+
+
+class MyBorrowsView (View):
+    def get(self, request, cid):
+        userfullname = None
+        if request.session.get('usertype') == 'customer':
+            cursor = connection.cursor()
+            sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+            cursor.execute(sql, [request.session.get('username', default='guest')])
+            result = cursor.fetchall()
+            cursor.close()
+            userfullname = result[0][0]
+
+        username = request.session.get('username')
+        usertype = request.session.get('usertype', default='guest')
+
+        context = {
+            "userfullname": userfullname,
+            "username": username,
+            "usertype": usertype,
+        }
+
+        return render(request, 'user_profile_borrows.html', context)
+
+
+
+
+# class MySubscriptionView(View):
+#     def get(self, request, cid):
+#         userfullname = None
+#         if request.session.get('usertype') == 'customer':
+#             cursor = connection.cursor()
+#             sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
+#             cursor.execute(sql, [request.session.get('username', default='guest')])
+#             result = cursor.fetchall()
+#             cursor.close()
+#             userfullname = result[0][0]
+
+#         username = request.session.get('username')
+#         usertype = request.session.get('usertype', default='guest')
+
+
+#         context = {
+#             "userfullname": userfullname,
+#             "username": username,
+#             "usertype": usertype,
+#         }
+
+#         return render(request, 'user_profile_subscription.html', context)

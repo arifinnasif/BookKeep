@@ -26,48 +26,114 @@
 
 {% for i in accountInfo %}
 
-<div class="col-lg-16">
-    <div class="row">
-        <div class="col">
+<div class="row no-gutters">
+    <div class="col-md-12 col-lg-6">
 
-            <div class="card shadow mb-3 fs-5" id="show_form_personal">
-                <!-- <div class="card-header py-3">
+        <div class="card shadow mb-3 fs-5" id="show_form_personal">
+            <!-- <div class="card-header py-3">
                     <h5 class="text-primary m-0 font-weight-bold">Personal Information</h5>
                 </div> -->
-                <div class="card-body">
+            <div class="card-body">
 
-                    <div class="form-group">
-                        <label for="username"><strong>Username</strong></label>
-                        <p>{{ i.username }}</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="first_name"><strong>Full Name</strong></label>
-                        <p>{{ i.fullname }}</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email"><strong>Email Address</strong></label>
-                        <p>{{ i.email }}</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email"><strong>Full Address</strong></label>
-                        <p>{{ i.fulladdress }}</p>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email"><strong>Contact Number</strong></label>
-                        {% for j in i.contact %}
-                        <p>{{ j }}</p>
-                        {% endfor %}
-                    </div>
-                    
+                <div class="form-group">
+                    <label for="username"><strong>Username</strong></label>
+                    <p>{{ i.username }}</p>
                 </div>
+
+                <div class="form-group">
+                    <label for="first_name"><strong>Full Name</strong></label>
+                    <p>{{ i.fullname }}</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="email"><strong>Email Address</strong></label>
+                    <p>{{ i.email }}</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="email"><strong>Full Address</strong></label>
+                    <p>{{ i.fulladdress }}</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="email"><strong>Contact Number</strong></label>
+                    {% for j in i.contact %}
+                    <p>{{ j }}</p>
+                    {% endfor %}
+                </div>
+
             </div>
         </div>
     </div>
+    {% endfor %}
+
+    <div class="col-md-12 col-lg-6 pl-3">
+        <div class="Plans">
+            {% if planInfo|length > 1 %}
+            <h6 align="center">You currently don't have any subscription! </h6>
+            <h3 align="center" class="mb-3">Available Plans</h3>
+            <table class="table table-striped table-hover text-dark" style="font-size:large; border: solid;">
+
+                
+                <tbody>
+                    <tr>
+                        <th scope="col">Plan Name</th>
+                        <th scope="col">Period</th>
+                        <th scope="col">Borrow Limit</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Buy Now</th>
+                    </tr>
+                    {% for i in planInfo %}
+                    <tr>
+                        <td>{{i.name}}</td>
+                        <td>{{i.period}} Days</td>
+                        <td>{{i.borrow_limit}} Books</td>
+                        <td> ৳ {{i.price}}</td>
+                        <td>
+                            <form id="buy-plan-{{i.id}}" action="{% url 'user-profile-account' cid=username %}" method='post'>
+                                {% csrf_token %}
+                                <input type="hidden" name="post-type" value="buy-plan">
+                                <input type="hidden" name="planID" value="{{i.id}}">
+                              </form>
+                              <div class="btn-group">
+                                <button form="buy-plan-{{i.id}}" class="btn btn-success" type="submit" name="buy-btn">Buy Plan</button>
+                              </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {% else %}
+
+            <h3 align="center" class="mb-3">Current Plan</h3>
+            
+            <table class="table table-striped table-hover text-dark" style="font-size:large; border: solid;">
+                <tbody>
+                    <tr>
+                        <th scope="col">Plan Name</th>
+                        <th scope="col">Period</th>
+                        <th scope="col">Borrow Limit</th>
+                        <th scope="col">Price</th>
+                    </tr>
+                    {% for i in planInfo %}
+                    <tr>
+                        <td>{{i.name}}</td>
+                        <td>{{i.period}} Days</td>
+                        <td>{{i.borrow_limit}} Books</td>
+                        <td> ৳ {{i.price}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+
+            {% endif %}
+        </div>
+
+    </div>
 </div>
-{% endfor %}
+
 
 {% endblock %}

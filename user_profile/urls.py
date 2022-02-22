@@ -8,4 +8,6 @@ urlpatterns = [
     path('user/<cid>/my-wishlist/', views.MyWishListView.as_view(), name= 'user-profile-wishlist'),
     path('user/<cid>/my-orders/', views.MyOrderView.as_view(), name= 'user-profile-orders'),
     path('user/<cid>/my-account/', views.MyAccountView.as_view(), name= 'user-profile-account'),
+    path('user/<cid>/my-borrows/', views.MyBorrowsView.as_view(), name= 'user-profile-borrows'),
+    # path('user/<cid>/my-subscription/', views.MySubscriptionView.as_view(), name= 'user-profile-subscription'),
 ]

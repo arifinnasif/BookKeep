@@ -10,9 +10,9 @@
 {% block content %}
 
 <style>
-    .footer{
-    padding-left: 18%;
-  }
+    .footer {
+        padding-left: 18%;
+    }
 </style>
 
 <div class="container-fluid">
@@ -43,7 +43,8 @@
                 </li>
                 <li>
                     <a id="my-wishlist" href="{% url 'user-profile-wishlist' cid=username %}"
-                        class="nav-link text-white {% block my-wishlist-anchor-class %}{% endblock %}" aria-current="page">
+                        class="nav-link text-white {% block my-wishlist-anchor-class %}{% endblock %}"
+                        aria-current="page">
                         <svg class="bi me-2" width="24" height="24">
                             <use xlink:href="#home" />
                         </svg>
@@ -61,18 +62,29 @@
                 </li>
                 <li>
                     <a id="book-list" href="{% url 'user-profile-orders' cid=username %}"
-                        class="nav-link text-white {% block my-orders-anchor-class %}{% endblock %}">
+                        class="nav-link text-white {% block my-orders-anchor-class %}{% endblock %}"
+                        aria-current="page">
                         <svg class="bi me-2" width="24" height="24">
                             <use xlink:href="#speedometer2" />
                         </svg>
                         My Orders
                     </a>
                 </li>
+                <li>
+                    <a id="book-list" href="{% url 'user-profile-borrows' cid=username %}"
+                        class="nav-link text-white {% block my-borrows-anchor-class %}{% endblock %}"
+                        aria-current="page">
+                        <svg class="bi me-2" width="24" height="24">
+                            <use xlink:href="#speedometer2" />
+                        </svg>
+                        My Borrows
+                    </a>
+                </li>
             </ul>
 
             <hr>
             <a href="{% url 'customer-logout-view' %}" class="nav-link bg-danger rounded text-center text-white">
-                
+
                 Logout
             </a>
         </div>
