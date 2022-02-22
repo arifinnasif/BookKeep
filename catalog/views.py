@@ -289,7 +289,7 @@ class HomepageView(View):
                 result = cursor.fetchall()
                 # print(sql)
                 cursor.close()
-                messages.info(request, 'Books Filtered By Genre: ' + book_types[0])
+                messages.info(request, 'Books Filtered By Genre: ' + ", ".join(book_types))
 
             except ValueError as e:
                 print(e)

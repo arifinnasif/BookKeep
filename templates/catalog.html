@@ -79,7 +79,7 @@
                   <strong> Published - Old To New</strong>
                 </label>
               </div>
-              
+
 
             </form>
 
@@ -100,12 +100,12 @@
               {% for i in types %}
 
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="genre" value="{{i}}">
+                <input class="form-check-input" type="checkbox" name="genre" value="{{i}}">
                 <label class="form-check-label" for="{{i}}">
                   <strong>{{i}}</strong>
                 </label>
               </div>
-              
+
               {% endfor %}
 
               <input type="hidden" id="type_list" name="types" value="types">
