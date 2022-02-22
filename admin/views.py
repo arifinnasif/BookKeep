@@ -1104,6 +1104,7 @@ class AdminBorrowsView(View):
             ISBN = request.POST.get('ISBN')
             cursor = connection.cursor()
             ret = cursor.callfunc("ACCEPT_BORROW_REQUEST", int, [customerID, ISBN, datetime.datetime.now()])
+            cursor.close()
             if ret == 0:
                 messages.success(request, 'Customer can now have the book')
 
