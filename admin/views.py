@@ -943,9 +943,32 @@ class AdminBorrowsView(View):
                 "bookName" : r[2],
             })
 
+        cursor = connection.cursor()
+        sql = """
+            SELECT E.CUSTOMER_ID, E.BORROWABLE_ITEM_ID, E.ISSUE_DATE, E.EXPIRED_ID,
+		          (SELECT NAME FROM BOOKS B
+		                WHERE B.ISBN = (SELECT BR.ISBN FROM BORROWABLE_ITEMS BR WHERE BR.BORROWABLE_ITEM_ID = E.BORROWABLE_ITEM_ID ) )
+            FROM EXPIRED E
+            ORDER BY E.ISSUE_DATE DESC
+	       """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        expired_books = []
+        for r in result:
+            expired_books.append({
+                "customerID" : r[0],
+                "borrowableItemID" : r[1],
+                "issueDate" : r[2].strftime('%Y-%m-%d %H:%M:%S'),
+                "bookName" : r[4],
+                "expiredID" :r[3],
+            })
+
         context = {
             "occupied_books" : occupied_books,
             "available_books" : available_books,
+            "expired_books" : expired_books,
             "reqs" : reqs,
         }
 
@@ -996,6 +1019,15 @@ class AdminBorrowsView(View):
                 DELETE FROM REQUESTS WHERE CUSTOMER_ID = %s AND ISBN = %s
                 """
             cursor.execute(sql, [customerID, ISBN])
+            cursor.close()
+
+        elif post_type == 'received-expired-book':
+            expiredID = request.POST.get('expiredID')
+            cursor = connection.cursor()
+            sql =   """
+                DELETE FROM EXPIRED WHERE EXPIRED_ID = %s
+                """
+            cursor.execute(sql, [expiredID])
             cursor.close()
 
 
