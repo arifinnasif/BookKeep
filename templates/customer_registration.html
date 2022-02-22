@@ -1,125 +1,56 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends "login_base.html" %}
 
-{% block base_content %}
-<style media="screen">
-  .notification {
-    position: absolute;
-    bottom: 1rem;
-    right: 1rem;
-  }
-
-  .fill {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-  }
-
-  #my-bg-img {
-    flex-shrink: 0;
-    min-width: 100%;
-    min-height: 100%
-  }
-
-  #fill_a_svg {
-    position: absolute;
-    display: block;
-    margin: auto;
-    justify-content: center;
-    align-items: center;
-  }
-</style>
-
-
-
-<div class="container-fluid">
-  <div class="row">
-    <!-- <div class="col-2 px-1 position-fixed" style="background-color: #cccccc;" id="sticky-sidebar"> -->
-    <!-- <div class="nav flex-column flex-nowrap vh-100 overflow-auto text-white p-2"> -->
-    <div id="sidebar" class="col-8 fill" style="top: 0px; bottom: 0px; position: fixed; background-image: url({% static 'background_image.jpg' %}); background-repeat: no-repeat; background-attachment: fixed; background-position: center;">
-    <!-- <div id="sidebar" class="col-8 fill" style="top: 0px; bottom: 0px; position: fixed;"> -->
-      <!-- imahe -->
-      <a href="{% url 'homepage' %}" class="stretched-link"></a>
-      <img id="fill_a_svg" src="{% static 'logo.svg' %}" height="10%" alt="">
-
-      <!-- <img id="my-bg-img" src="eheetetpse://via.placeholder.com/1920x1080.png" alt=""> -->
+{% block login-content %}
+<div class="container-fluid my-4">
+  <h3>Register for free</h3>
+  <hr>
+  <!-- form -->
+  <form id="signupform" action="{% url 'customer-registration-view' %}" method='post' enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="fullname" class="form-label">Fullname</label>
+      <input type="text" class="form-control" id="fullname" name="fullname">
     </div>
-    <!-- </div> -->
-    <!-- </div> -->
 
-    <div class="col-4 offset-8" id="main">
-      <div class="container-fluid my-4">
-        <h3>Register for free</h3>
-        <hr>
-        <!-- form -->
-        <form id="signupform" action="{% url 'customer-registration-view' %}" method='post' enctype="multipart/form-data">
-          {% csrf_token %}
-          <div class="mb-3">
-            <label for="fullname" class="form-label">Fullname</label>
-            <input type="text" class="form-control" id="fullname" name="fullname">
-          </div>
-
-          <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="text" class="form-control" id="email" name="email">
-          </div>
-
-
-          <div class="mb-3">
-            <label for="address" class="form-label">Address</label>
-            <textarea rows="4" class="form-control" name="address" id="address" name="address"></textarea>
-          </div>
-
-
-          <div class="mb-3">
-            <label for="cont_number" class="form-label">Contact Number</label>
-            <input type="text" class="form-control" id="cont_number" name="cont_number" aria-describedby="cont_info">
-            <div id="cont_info" class="form-text">Provide comma separated contacts if you wish to add more than one</div>
-          </div>
-
-          <br>
-
-          <div class="mb-3">
-            <label for="username" class="form-label">Username</label>
-            <input type="text" class="form-control" id="username" name="username">
-          </div>
-
-
-          <div class="mb-3">
-            <label for="password1" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password1" name="password1">
-          </div>
-
-
-          <div class="mb-3">
-            <label for="password2" class="form-label">Confirm Password</label>
-            <input type="password" class="form-control" id="password2" name="password2">
-          </div>
-
-
-        </form>
-        <button form="signupform" type="submit" class="btn btn-primary">Sign Up</button>
-      </div>
+    <div class="mb-3">
+      <label for="email" class="form-label">Email</label>
+      <input type="text" class="form-control" id="email" name="email">
     </div>
-  </div>
+
+
+    <div class="mb-3">
+      <label for="address" class="form-label">Address</label>
+      <textarea rows="4" class="form-control" name="address" id="address" name="address"></textarea>
+    </div>
+
+
+    <div class="mb-3">
+      <label for="cont_number" class="form-label">Contact Number</label>
+      <input type="text" class="form-control" id="cont_number" name="cont_number" aria-describedby="cont_info">
+      <div id="cont_info" class="form-text">Provide comma separated contacts if you wish to add more than one</div>
+    </div>
+
+    <br>
+
+    <div class="mb-3">
+      <label for="username" class="form-label">Username</label>
+      <input type="text" class="form-control" id="username" name="username">
+    </div>
+
+
+    <div class="mb-3">
+      <label for="password1" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password1" name="password1">
+    </div>
+
+
+    <div class="mb-3">
+      <label for="password2" class="form-label">Confirm Password</label>
+      <input type="password" class="form-control" id="password2" name="password2">
+    </div>
+
+
+  </form>
+  <button form="signupform" type="submit" class="btn btn-primary">Sign Up</button>
 </div>
-
-
-
-
-<div class="toast-container">
-  {% for message in messages %}
-  <div class="toast {{ message.tags}} notification align-items-center" role="alert" aria-live="assertive" aria-atomic="true">
-    <div class="d-flex">
-      <div class="toast-body">
-        {{message}}
-      </div>
-      <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
-    </div>
-  </div>
-  {% endfor %}
-</div>
-
-
 {% endblock %}
