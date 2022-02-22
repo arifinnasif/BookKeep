@@ -268,7 +268,14 @@ class UserBookDetailsView(View):
             if cnt_books_in_requests != 0 or cnt_books_in_borrows != 0:
                 isRequestable = False
 
-
+        rating = "Not Rated"
+        cursor = connection.cursor()
+        sql = "SELECT AVG(RATING) FROM REVIEWS WHERE ISBN = %s"
+        cursor.execute(sql, [str(isbn)])
+        result = cursor.fetchall()
+        cursor.close()
+        if result[0][0] is not None:
+            rating = ('%.1f' % result[0][0])+"/5.0"
 
 
         context = {
@@ -281,6 +288,7 @@ class UserBookDetailsView(View):
             "feedback": user_feedback,
             "isSubscriber" : isSubscriber, # dont show any request button if isSubscriber is False
             "isRequestable" : isRequestable, # disable request button if isSubscriber is True and isRequestable is False
+            "rating" : rating,
         }
 
         return render(request, 'book_details.html', context)
