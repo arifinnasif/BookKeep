@@ -70,7 +70,7 @@
             </div>
         </div>
     </div>
-    
+
 
     <!-- edit Modal -->
 
@@ -91,7 +91,8 @@
 
                         <div class="mb-3">
                             <label for="fullname" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="fullname" name="fullname" value="{{i.fullname}}">
+                            <input type="text" class="form-control" id="fullname" name="fullname"
+                                value="{{i.fullname}}">
                         </div>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email Address</label>
@@ -103,7 +104,8 @@
                                 value="{{i.fulladdress}}">
                         </div>
                         <div class="mb-3">
-                            <label for="contact" class="form-label">Contact No. (Use Comma Separated Values if Multiple)</label>
+                            <label for="contact" class="form-label">Contact No. (Use Comma Separated Values if
+                                Multiple)</label>
                             <input type="text" class="form-control" name="contact" id="contact"
                                 value="{% for j in i.contact %} {{j}}, {% endfor %}">
                         </div>
