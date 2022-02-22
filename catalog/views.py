@@ -58,9 +58,9 @@ class HomepageView(View):
             if r[3] < datetime.datetime.now() and r[3]+datetime.timedelta(days = int(r[4])) > datetime.datetime.now():
                 ongoingOfferInfo.append(temp_dict)
                 messages.info(request, temp_dict['offerName'] + ' Ongoing! Offer Ends on ' + temp_dict['end_date'] + '. Hurry Up!')
-        print(ongoingOfferInfo)    
-            
-        
+        print(ongoingOfferInfo)
+
+
         cursor = connection.cursor()
         # adding ISBN to the query
         sql = "SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN FROM BOOKS B LEFT OUTER JOIN WRITES W USING(ISBN) JOIN AUTHORS A USING (AUTHOR_ID)"
@@ -77,7 +77,7 @@ class HomepageView(View):
             for j in ongoingOfferInfo:
                     if val[3] in j['books_with_this_offer']:
                         # per book discount
-                        discount = float(val[1]) * float(j['discount_pct']) 
+                        discount = float(val[1]) * float(j['discount_pct'])
                         # discounted price per book
                         val.append("{:.2f}".format(round((float(val[1]) - discount), 2)))
                         val.append(j['offerName'])
@@ -98,7 +98,7 @@ class HomepageView(View):
         types = []
         for r in result:
             types.append(str(r[0]))
-        
+
 
         userfullname = None
         if request.session.get('usertype') == 'customer':
@@ -135,7 +135,7 @@ class HomepageView(View):
         types = []
         for r in result:
             types.append(str(r[0]))
-        
+
         ####### OFFER CHECK #########
         cursor = connection.cursor()
         sql =   """
@@ -176,7 +176,7 @@ class HomepageView(View):
                 ongoingOfferInfo.append(temp_dict)
                 messages.info(request, temp_dict['offerName'] + ' Ongoing! Offer Ends on ' + temp_dict['end_date'] + '. Hurry Up!')
         # print(ongoingOfferInfo)
-        
+
         #############################
 
         userfullname = None
@@ -196,14 +196,14 @@ class HomepageView(View):
         try:
             expr = str(request.POST.get('search'))
             cursor = connection.cursor()
-           
 
-            sql = """ SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN FROM BOOKS B 
-                    LEFT OUTER JOIN WRITES W USING(ISBN) 
+
+            sql = """ SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN FROM BOOKS B
+                    LEFT OUTER JOIN WRITES W USING(ISBN)
                     JOIN AUTHORS A USING (AUTHOR_ID)
                     WHERE LOWER(B.NAME) LIKE %s
                     OR LOWER(A.NAME) LIKE %s"""
-            
+
             cursor.execute(sql, ['%' + str(expr.lower()) + '%', '%' + str(expr.lower()) + '%'])
             # print(expr)
             result = cursor.fetchall()
@@ -215,9 +215,9 @@ class HomepageView(View):
         try:
             cursor = connection.cursor()
             if request.POST.get('lowtohigh') is not None:
-                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN 
-                        FROM BOOKS B 
-                        LEFT OUTER JOIN WRITES W USING(ISBN) 
+                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN
+                        FROM BOOKS B
+                        LEFT OUTER JOIN WRITES W USING(ISBN)
                         JOIN AUTHORS A USING (AUTHOR_ID)
                         ORDER BY PRICE"""
                 cursor.execute(sql)
@@ -226,9 +226,9 @@ class HomepageView(View):
                 messages.info(request, 'Books Sorted By Original Price (Low To High)')
 
             elif request.POST.get('hightolow') is not None:
-                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN 
-                        FROM BOOKS B 
-                        LEFT OUTER JOIN WRITES W USING(ISBN) 
+                sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN
+                        FROM BOOKS B
+                        LEFT OUTER JOIN WRITES W USING(ISBN)
                         JOIN AUTHORS A USING (AUTHOR_ID)
                         ORDER BY PRICE DESC"""
                 cursor.execute(sql)
@@ -238,8 +238,8 @@ class HomepageView(View):
 
             elif request.POST.get('oldtonew') is not None:
                 sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN
-                        FROM BOOKS B 
-                        LEFT OUTER JOIN WRITES W USING(ISBN) 
+                        FROM BOOKS B
+                        LEFT OUTER JOIN WRITES W USING(ISBN)
                         JOIN AUTHORS A USING (AUTHOR_ID)
                         ORDER BY RELEASE_DATE"""
                 cursor.execute(sql)
@@ -249,8 +249,8 @@ class HomepageView(View):
 
             elif request.POST.get('newtoold') is not None:
                 sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN
-                        FROM BOOKS B 
-                        LEFT OUTER JOIN WRITES W USING(ISBN) 
+                        FROM BOOKS B
+                        LEFT OUTER JOIN WRITES W USING(ISBN)
                         JOIN AUTHORS A USING (AUTHOR_ID)
                         ORDER BY RELEASE_DATE DESC"""
                 cursor.execute(sql)
@@ -266,29 +266,35 @@ class HomepageView(View):
         book_types = request.POST.get('types')
         if book_types is not None and book_types != '':
             try:
-                book_types = tuple(i for i in book_types.split(','))                
-                print(book_types)
+                book_types = tuple(i for i in book_types.split(','))
+                # print(book_types)
+                # book_types = ('Novel', 'Fiction')
+                comma_sep_book_types = (', '.join('\'' + item + '\'' for item in book_types))
+                # print("---")
+                # print(book_types)
+                # print(comma_sep_book_types)
                 cursor = connection.cursor()
                 sql = """SELECT B.NAME BOOK_NAME, B.PRICE PRICE, A.NAME WRITER_NAME, ISBN
-                            FROM BOOKS B 
+                            FROM BOOKS B
                             LEFT OUTER JOIN WRITES W USING(ISBN)
                             JOIN AUTHORS A USING (AUTHOR_ID)
-                            WHERE ISBN IN (		
+                            WHERE ISBN IN (
                                 SELECT DISTINCT ISBN
                                 FROM BOOK_TYPE
-                                WHERE B_TYPE IN %s
-                            )"""
+                                WHERE B_TYPE IN (%s)
+                            )""" % (comma_sep_book_types)
 
-                cursor.execute(sql, book_types)
+                # print(sql)
+                cursor.execute(sql)
                 result = cursor.fetchall()
-                print(result)
+                # print(sql)
                 cursor.close()
                 messages.info(request, 'Books Filtered By Genre: ' + book_types[0])
 
-            except Exception as e:
+            except ValueError as e:
                 print(e)
                 messages.error(request, 'Error while filtering! Please try again.')
-        
+
 
         books = []
         for r in result:
@@ -296,7 +302,7 @@ class HomepageView(View):
             for j in ongoingOfferInfo:
                     if val[3] in j['books_with_this_offer']:
                         # per book discount
-                        discount = float(val[1]) * float(j['discount_pct']) 
+                        discount = float(val[1]) * float(j['discount_pct'])
                         # discounted price per book
                         val.append("{:.2f}".format(round((float(val[1]) - discount), 2)))
                         val.append(j['offerName'])
