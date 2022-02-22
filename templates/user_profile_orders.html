@@ -5,6 +5,24 @@
 
 {% block user-profile-content-block %}
 
+<style>
+    .border-style {
+        border: solid;
+    }
+
+    .border-style-2{
+        border: solid;
+        border-color: green;
+        background-color: #c5ebbe;
+    }
+
+    .border-style-3{
+        border: solid;
+        border-color: red;
+        background-color: #f0a1a6;
+    }
+</style>
+
 <!--------------------------------------- HEADER + MESSAGE --------------------------------------->
 
 <header class="pb-3 mb-4 border-bottom">
@@ -26,6 +44,58 @@
     </a>
 </header>
 
+<!--------------------------------------- PENDING --------------------------------------->
+
+
+{% if pending|length %}
+<header class="pb-3 mb-4 border-bottom">
+    <h2 align="center">Pending Orders</h2>
+</header>
+{% endif %}
+
+{% for k,v in pending.items %}
+
+<div class="container-fluid row align-items-md-stretch">
+    <div class="p-3 mb-2 rounded-3 border-style-3 mb-3">
+
+        <div>
+            <div align="left" style="width: 50%; float: left;">
+                <h4 class="display-8 fw-bold text-dark">Order ID: {{k}}</h4>
+                <h4 class="text-dark">Total Price: ৳{{ v.1 }}</h4>
+            </div>
+            <div align="right" style="width: 50%; float: right;">
+                <h5 class="text-dark">Order Date: {{v.0.0.orderdate}}</h5>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container-fluid row align-items-md-stretch">
+    <div class="bg-light p-3 mb-2 rounded-3 border-style mb-3">
+
+        <div class="row">
+            {% for j in v.0 %}
+            <div class="col-sm-6">
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <h5 class="card-header border-style mb-3">{{j.bookName}}</h5>
+
+                        <h6 class="col-md-12 fs-5"> Price: ৳{{j.unitprice}}</h6>
+                        <h6 class="col-md-12 fs-5">Quantity: {{j.quantity}}</h6>
+                        <!-- <h6 class="col-md-12 fs-5">Order Date: {{j.orderdate}}</h6> -->
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+    </div>
+</div>
+
+{% endfor %}
+
 <!--------------------------------------- COMPLETED --------------------------------------->
 
 {% if completed|length %}
@@ -37,7 +107,7 @@
 {% for k,v in completed.items %}
 
 <div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3">
+    <div class="p-3 mb-2 rounded-3 border-style-2 mb-3">
 
         <div>
             <div align="left" style="width: 50%; float: left;">
@@ -56,14 +126,14 @@
 </div>
 
 <div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3">
+    <div class="bg-light p-3 mb-2 rounded-3 border-style mb-3">
 
         <div class="row">
             {% for j in v.0 %}
             <div class="col-sm-6">
-                <div class="card">
+                <div class="card mb-3">
                     <div class="card-body">
-                        <h5 class="card-header">{{j.bookName}}</h5>
+                        <h5 class="card-header border-style mb-3">{{j.bookName}}</h5>
                         <!-- <h5 class="col-md-12 fs-5">  </h5> -->
                         <h6 class="col-md-12 fs-5"> Price: ৳{{j.unitprice}}</h6>
                         <h6 class="col-md-12 fs-5">Quantity: {{j.quantity}}</h6>
@@ -74,58 +144,6 @@
         </div>
 
         <!-- <h6 class="col-md-12 fs-5 edit-isbn delete-isbn">{{i.isbn}}</h6> -->
-
-    </div>
-</div>
-
-{% endfor %}
-
-<!--------------------------------------- PENDING --------------------------------------->
-
-
-{% if pending|length %}
-<header class="pb-3 mb-4 border-bottom">
-    <h2 align="center">Pending Orders</h2>
-</header>
-{% endif %}
-
-{% for k,v in pending.items %}
-
-<div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3">
-
-        <div>
-            <div align="left" style="width: 50%; float: left;">
-                <h4 class="display-8 fw-bold text-dark">Order ID: {{k}}</h4>
-                <h4 class="text-dark">Total Price: ৳{{ v.1 }}</h4>
-            </div>
-            <div align="right" style="width: 50%; float: right;">
-                <h5 class="text-dark">Order Date: {{v.0.0.orderdate}}</h5>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-
-<div class="container-fluid row align-items-md-stretch">
-    <div class="bg-light p-3 mb-2 rounded-3">
-
-        <div class="row">
-            {% for j in v.0 %}
-            <div class="col-sm-6">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-header">Title: {{j.bookName}}</h5>
-
-                        <h6 class="col-md-12 fs-5"> Price: ৳{{j.unitprice}}</h6>
-                        <h6 class="col-md-12 fs-5">Quantity: {{j.quantity}}</h6>
-                        <!-- <h6 class="col-md-12 fs-5">Order Date: {{j.orderdate}}</h6> -->
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
 
     </div>
 </div>

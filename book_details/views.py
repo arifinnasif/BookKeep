@@ -14,7 +14,18 @@ class BookShortDetail:
         self.isbn = entry[1]
         self.authorName = entry[2]
         self.price = entry[4]
+        self.quantity = entry[7]
         self.type = ", ".join(genre)
+
+        if entry[9] is not None:
+            self.discountedprice = entry[9]
+        else:
+            self.discountedprice = None
+        if entry[10] is not None:
+            self.offername = entry[10]
+        else:
+            self.offername = None
+
 
 
 class BookLongDetail:
@@ -72,6 +83,50 @@ class UserReview:
 
 class UserBookDetailsView(View):
     def get(self, request, isbn):
+
+        ####### OFFER CHECK #########
+        cursor = connection.cursor()
+        sql =   """
+                SELECT OFFER_ID, NAME, DISCOUNT_PCT, START_DATE, PERIOD
+                FROM OFFERS
+                """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        ongoingOfferInfo = []
+        for r in result:
+            cursor = connection.cursor()
+            sql =   """
+                    SELECT ISBN
+                    FROM OFFER_BOOK OB INNER JOIN BOOKS B USING (ISBN)
+                    WHERE OB.OFFER_ID = %s
+                    """
+            cursor.execute(sql,[int(r[0])])
+            result2 = cursor.fetchall()
+            cursor.close()
+
+            books_with_this_offer = []
+            for r2 in result2:
+                books_with_this_offer.append(r2[0])
+
+            temp_dict = {
+                "offerID" : r[0],
+                "offerName" : r[1],
+                "discount_pct" : r[2],
+                "start_date" : r[3].strftime('%Y-%m-%d'),
+                "period" : r[4],
+                "books_with_this_offer" : books_with_this_offer,
+            }
+
+            if r[3] < datetime.datetime.now() and r[3]+datetime.timedelta(days = int(r[4])) > datetime.datetime.now():
+                ongoingOfferInfo.append(temp_dict)
+                # messages.info(request, temp_dict['offerName'] + ' Ongoing')
+        print(ongoingOfferInfo)    
+
+        #############################
+
+
         cursor = connection.cursor()
         sql_book = """SELECT B.NAME, ISBN, A.NAME AUTHOR, B.EDITION, B.PRICE, B.PAGE_COUNT, B.RELEASE_DATE, B.QUANTITY, P.NAME PUBLISHER
                 FROM BOOKS B 
@@ -116,7 +171,18 @@ class UserBookDetailsView(View):
 
         bookShortInfo = []
         for r in result:
-            bookShortInfo.append(BookShortDetail(r, genre))
+            val = [i for i in r]
+            for j in ongoingOfferInfo:
+                if val[1] in j['books_with_this_offer']:
+                    # per book discount
+                    discount = float(val[4]) * float(j['discount_pct']) 
+                    # discounted price per book
+                    val.append("{:.2f}".format(round((float(val[4]) - discount), 2)))
+                    val.append(j['offerName'])
+                else:
+                    val.append(None)  # same price as before
+                    val.append(None)
+            bookShortInfo.append(BookShortDetail(val, genre))
         # bookShortInfo.add_genre(genre)
 
         authorInfo = []
@@ -176,9 +242,6 @@ class UserBookDetailsView(View):
             review = str(request.POST.get('review'))
             if rating >=1 and rating <=5 and len(review) < 256:
                 cursor = connection.cursor()
-                # sql = """INSERT INTO REVIEWS (CUSTOMER_ID, ISBN, RATING, FEEDBACK)
-                #         VALUES (%s, %s, %s, %s)"""
-                # cursor.execute(sql, [username, str(isbn), rating, review])
                 return_msg = cursor.var(str).var
                 cursor.callproc("POST_REVIEW", [username, str(isbn), rating, review, return_msg])
                 msg = return_msg.getvalue()   

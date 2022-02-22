@@ -1,0 +1,203 @@
+{% extends 'user_profile.html' %}
+{% load static %}
+
+{% block my-wishlist-anchor-class %}active{% endblock %}
+
+{% block user-profile-content-block %}
+
+<style>
+    .book_box {
+        height: 200px;
+    }
+
+    .book_image {
+        height: 100%;
+        width: 40%;
+        float: left;
+    }
+
+    .book_desc {
+        width: 60%;
+        height: 300px;
+        float: right;
+    }
+
+    .edit-isbn {
+        display: none;
+    }
+
+    .remove-isbn {
+        display: none;
+    }
+
+    .border-style {
+        border: solid;
+    }
+
+    .cart_modal {
+        background-color: #daebf2;
+    }
+
+    .my-isbn {
+        display: none;
+    }
+</style>
+
+<header class="pb-3 mb-4 border-bottom">
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-dismissible alert-success">
+        <button type="button" class="close" data-dismiss="alert">
+            ×
+        </button>
+        <strong>{{message}}</strong>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <a href="#" class="d-flex align-items-center text-dark text-decoration-none">
+        <span class="fs-4">
+            <h1>My Wishlist</h1>
+        </span>
+    </a>
+</header>
+<div class="row no-gutters">
+    <div class="col-md-12 col-lg-10">
+        {% for i in wishlist %}
+        <div class="container-fluid row align-items-md-stretch">
+            <div class="bg-light p-3 mb-2 rounded-3 border-style" style="height: 300px;">
+                <!--p-3 mb-2 rounded-3-->
+                <a href="{% url 'book_page' isbn=i.isbn %}">
+                    <div class="book_image" align="center">
+                        <figure class="figure">
+                            <img src="{% static 'book_cover/' %}{{i.isbn}}.jpg" class="figure-img img-fluid rounded"
+                                alt="alternative text for book image" style="height: 250px;">
+                            <!-- <figcaption class="figure-caption">A caption for the above image.</figcaption> -->
+                        </figure>
+                    </div>
+                </a>
+                <div class="container-fluid py-5 align-items-right book_desc">
+
+                    <h4 class="display-8 fw-bold text-dark">{{i.bookName}}</h4>
+
+                    <h5 class="col-md-12 fs-5"> By- {{i.authorName}} </h5>
+                    {% if i.price != i.discounted_price %}
+                    <h6 class="col-md-12 fs-5"> Price: ৳ <strike>{{i.price}}</strike> {{i.discounted_price}}</h6>
+                    {% else %}
+                    <h6 class="col-md-12 fs-5"> Price: ৳{{i.price}}</h6>
+                    {% endif %}
+                    <h6 class="col-md-12 fs-5 my-isbn remove-isbn">{{i.isbn}}</h6>
+
+                    <div class="pt-2">
+                        <button class="btn btn-primary btn-lg my-add-btn" type="button" data-bs-toggle="modal"
+                            data-bs-target="#addCartModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                class="bi bi-cart" viewBox="0 0 16 16">
+                                <path
+                                    d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                            </svg>
+                            Add To Cart</button>
+                        <button class="btn btn-primary btn-lg btn btn-danger my-remove-btn" type="button"
+                            data-bs-toggle="modal" data-bs-target="#removeCartModal">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                class="bi bi-cart" viewBox="0 0 16 16">
+                                <path
+                                    d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                            </svg>
+                            Remove From Wishlist</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<!-- Add Cart Modal -->
+
+<div class="modal fade" id="addCartModal" tabindex="-1" aria-labelledby="addCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content cart_modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addCartModalLabel">Add This Book To My Cart</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form id="cart" method="post" class="pb-4" action="{% url 'user-profile-wishlist' cid=username %}">
+                    {% csrf_token %}
+
+                    <h5>
+                        Enter quantity
+                        </h3>
+                        <label for="quantity">Check out the stock before entering! : </label>
+
+                        <input type="hidden" name="post_type" value="add">
+
+                        <!-- max quantity given 100 -->
+
+
+                        <input type="number" id="quantity" name="quantity" min="1" max="100" value="1">
+                        <input type="hidden" id="modal-isbn" name="isbn" value="my-isbn">
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button submit" form="cart" class="btn btn-primary">Save
+                    changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Remove Modal -->
+
+
+<div class="modal fade" id="removeCartModal" tabindex="-1" aria-labelledby="removeCartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content remove_cart_modal">
+            <div class="modal-header">
+                <h5 class="modal-title" id="removeCartModalLabel">Remove From Wishlist</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <form id="removeCart" method="post" class="pb-4"
+                    action="{% url 'user-profile-wishlist' cid=username %}">
+                    {% csrf_token %}
+
+                    <h3>
+                        Are you sure you want to remove this book from wishlist?
+                    </h3>
+
+                    <!-- remove type post request -->
+                    <input type="hidden" name="post_type" value="remove">
+                    <input type="hidden" id="remove-modal-isbn" name="isbn" value="remove-isbn">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <button type="button submit" form="removeCart" class="btn btn-primary">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.my-add-btn').click(function () {
+            var v = $(event.target).parent().siblings(".my-isbn").text();
+            $("#modal-isbn").val(v);
+
+        });
+        $('.my-remove-btn').click(function () {
+            var v = $(event.target).parent().siblings(".remove-isbn").text();
+            $("#remove-modal-isbn").val(v);
+        });
+    });
+</script>
+
+{% endblock %}

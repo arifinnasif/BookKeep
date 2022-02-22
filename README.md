@@ -4,8 +4,9 @@ L-2 T-2 Database Project
 ### Directory descriptions
 * **BookKeep :** base project directory
 * **admin :** admin panel app directory. contains admin access over all other features and users
-* **catalog :** the `catalog` app directory. responsible for showing all the books as card layout. may be used as search result also
-* **book_deatils :** the details information about each book, its author, publisher and so many attributes
+* **catalog :** the home app directory. responsible for showing all the books short intro as card layout. may be used as search result also
+* **book_details :** the details information about each book, its author, publisher and many other attributes. also contains rating, review features
+* **user_profile :** client side app directory. contains user account info, cart, wishlist and order info
 * **doc :** contains basic project info, like, project proposal, ERD etc
 * **login :** this app handles user login and session managements
 * **sql :** contains sql commands that are required every now and then
