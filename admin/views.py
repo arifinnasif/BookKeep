@@ -73,12 +73,25 @@ class AdminPanel(View):
 
         total_offer_count = int(result[0][0])
 
+        cursor = connection.cursor()
+        sql = """
+            SELECT COUNT(*)
+            FROM ORDERS
+            WHERE DELIVERY_DATE IS NOT NULL
+        """
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        cursor.close()
+
+        total_order_count = int(result[0][0])
+
         context = {
             "total_sold" : total_sold,
             "since_date" : since_date,
             "total_customer_count" : total_customer_count,
             "total_book_count" : total_book_count,
             "total_offer_count" : total_offer_count,
+            "total_order_count" : total_order_count,
         }
 
 
