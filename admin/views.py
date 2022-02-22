@@ -85,23 +85,6 @@ class AdminPanel(View):
         return render(request, 'admin_panel_overview.html', context)
 
 
-# class CustomerInfoModel:
-#     def __init__(self, row):
-#         self.customerID         = row[0]
-#         self.name               = row[1]
-#         if row[2] is None:
-#             self.address        = ""
-#         else:
-#             self.address        = row[2]
-#         self.email              = row[3]
-#         self.accountCreatedOn   = row[4].strftime('%Y-%m-%d %H:%M:%S')
-#         if row[6] is None:
-#             self.planName       = ""
-#             self.membershipBoughtOn = ""
-#         else:
-#             self.planName       = row[6]
-#             self.membershipBoughtOn = row[5].strftime('%Y-%m-%d %H:%M:%S')
-
 
 class AdminCustomerListView(View):
     @check_if_authorized_manager
@@ -269,8 +252,8 @@ class AdminBookListView(View):
 
         bookName        = request.POST.get("bookName")
         edition         = request.POST.get("edition")
-        releaseDate     = datetime.datetime.strptime(request.POST.get("releaseDate"), '%Y-%m-%d')
-        bookType        = request.POST.get("bookType").split(",")
+        releaseDate     = None if request.POST.get("releaseDate") is None else datetime.datetime.strptime(request.POST.get("releaseDate"), '%Y-%m-%d')
+        bookType        = [] if request.POST.get("bookType") is None else request.POST.get("bookType").split(",")
         try:
             if request.POST.get("authorID") is None or len(request.POST.get("authorID")) == 0:
                 messages.error('Provide an Author Name')
