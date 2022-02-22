@@ -268,7 +268,7 @@ class UserBookDetailsView(View):
             if cnt_books_in_requests != 0 or cnt_books_in_borrows != 0:
                 isRequestable = False
 
-            
+
 
 
         context = {
@@ -306,23 +306,25 @@ class UserBookDetailsView(View):
             quantity = int(request.POST.get('quantity'))
             print(quantity)
 
-            ### check if the post is of request type
-            is_request = False
-            if is_request:
-                cursor = connection.cursor()
-                ret = cursor.callfunc("REQUEST_TO_BORROW", [username, str(isbn), datetime.datetime.now()])
-                if ret == 0:
-                    # success
-                    messages.success(request, "Successfully requested!")
-                elif ret == 1:
-                    # not a sub
-                    messages.error(request, "You are not a subscriber or your subscription has expired")
-                elif ret == 2:
-                    # already requested (pending)
-                    messages.warning(request, "Your request is pending. Request not made")
-                elif ret ==3:
-                    # already borrowed
-                    messages.error(request, "You have already borrowed this book")
-                cursor.close()
+        ### check if the post is of request type
+        is_request = False
+        if is_request:
+            cursor = connection.cursor()
+            ret = cursor.callfunc("REQUEST_TO_BORROW", [username, str(isbn), datetime.datetime.now()])
+            cursor.close()
+
+            if ret == 0:
+                # success
+                messages.success(request, "Successfully requested!")
+            elif ret == 1:
+                # not a sub
+                messages.error(request, "You are not a subscriber or your subscription has expired")
+            elif ret == 2:
+                # already requested (pending)
+                messages.warning(request, "Your request is pending. Request not made")
+            elif ret ==3:
+                # already borrowed
+                messages.error(request, "You have already borrowed this book")
+
 
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
