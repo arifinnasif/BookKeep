@@ -1,4 +1,4 @@
-from operator import contains
+from tkinter.messagebox import NO
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.db import connection
 from django.views import View
@@ -70,6 +70,18 @@ class BookInTheWishlist:
         self.authorName = entry[2]
         self.price = entry[3]
         self.discounted_price = entry[4]
+
+
+class BookInTheBorrows:
+    def __init__(self, entry):
+        self.isbn = entry[0]
+        self.bookName = entry[1]
+        self.authorName = entry[2]
+        if entry[3] is not None:
+            self.startdate = entry[3].strftime('%Y-%m-%d')
+        if entry[4] is not None:
+            self.enddate = entry[4].strftime('%Y-%m-%d')
+        
 
 
 
@@ -585,7 +597,7 @@ class MyAccountView(View):
     def get(self, request, cid):
 
         cursor = connection.cursor()
-        sql = """SELECT *
+        sql = """SELECT CUSTOMER_ID, C.PASSWORD, C.NAME, C.ADDRESS, C.EMAIL, C.ACCOUNT_CREATED_ON, S.MEMBERSHIP_BOUGHT_ON, S.PLAN_ID
                 FROM CUSTOMERS C
                 LEFT OUTER JOIN SUBSCRIBERS S USING (CUSTOMER_ID)
                 WHERE CUSTOMER_ID = %s"""
@@ -607,7 +619,7 @@ class MyAccountView(View):
 
         if(result[0][-1]):
             cursor = connection.cursor()
-            sql = """SELECT *
+            sql = """SELECT PLAN_ID, NAME, PERIOD, BORROW_LIMIT, PRICE
                     FROM PLANS
                     WHERE PLAN_ID = %s"""
             cursor.execute(sql, [result[0][-1]])    
@@ -625,7 +637,7 @@ class MyAccountView(View):
  
         else:
             cursor = connection.cursor()
-            sql = """SELECT *
+            sql = """SELECT PLAN_ID, NAME, PERIOD, BORROW_LIMIT, PRICE
                     FROM PLANS
                     """
             cursor.execute(sql)    
@@ -756,36 +768,55 @@ class MyBorrowsView (View):
         username = request.session.get('username')
         usertype = request.session.get('usertype', default='guest')
 
+        cursor = connection.cursor()
+        sql = """SELECT ISBN, B.NAME, A.NAME, BR.START_DATE, BR.END_DATE 
+                FROM BORROWS BR 
+                LEFT OUTER JOIN BORROWABLE_ITEMS BRIT USING(BORROWABLE_ITEM_ID)
+                LEFT OUTER JOIN BOOKS B USING (ISBN)
+                LEFT OUTER JOIN WRITES W USING (ISBN)
+                LEFT OUTER JOIN AUTHORS A USING (AUTHOR_ID)
+                WHERE BR.CUSTOMER_ID = %s"""
+        cursor.execute(sql, [username])
+        result = cursor.fetchall()
+        cursor.close()
+
+
+        cursor = connection.cursor()
+        sql = """SELECT ISBN, B.NAME, A.NAME 
+                FROM REQUESTS R 
+                LEFT OUTER JOIN BOOKS B USING (ISBN)
+                LEFT OUTER JOIN WRITES W USING (ISBN)
+                LEFT OUTER JOIN AUTHORS A USING (AUTHOR_ID)
+                WHERE R.CUSTOMER_ID = %s"""
+        cursor.execute(sql, [username])
+        result2 = cursor.fetchall()
+        cursor.close()
+
+
+        borrowBooks = []
+        requestedBooks = []
+
+        if not result:
+            messages.error(request, 'You Don\'t Have Any Borrows! Buy a Plan, Borrow a Book, or maybe just wait for request to be accepted!')
+        else:
+            for r in result:
+                borrowBooks.append(BookInTheBorrows(r))
+
+        if not result2:
+            messages.error(request, "You Don\'t Have Any Pending Borrow Requests!")
+        else:
+            for r in result2:
+                r = r + (None,)
+                r = r + (None,)
+                requestedBooks.append(BookInTheBorrows(r))
+
         context = {
             "userfullname": userfullname,
             "username": username,
             "usertype": usertype,
+            "borrow": borrowBooks,
+            "pending": requestedBooks,
         }
 
         return render(request, 'user_profile_borrows.html', context)
 
-
-
-
-# class MySubscriptionView(View):
-#     def get(self, request, cid):
-#         userfullname = None
-#         if request.session.get('usertype') == 'customer':
-#             cursor = connection.cursor()
-#             sql = "SELECT NAME FROM CUSTOMERS WHERE CUSTOMER_ID = %s"
-#             cursor.execute(sql, [request.session.get('username', default='guest')])
-#             result = cursor.fetchall()
-#             cursor.close()
-#             userfullname = result[0][0]
-
-#         username = request.session.get('username')
-#         usertype = request.session.get('usertype', default='guest')
-
-
-#         context = {
-#             "userfullname": userfullname,
-#             "username": username,
-#             "usertype": usertype,
-#         }
-
-#         return render(request, 'user_profile_subscription.html', context)
