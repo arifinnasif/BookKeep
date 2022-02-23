@@ -1,5 +1,4 @@
-from tkinter.messagebox import NO
-from django.shortcuts import render, redirect, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect
 from django.db import connection
 from django.views import View
 from django.contrib import messages
@@ -7,8 +6,6 @@ import datetime
 
 from custom_utils import check_if_specific_authorized_customer
 
-
-# Create your views here.
 
 def show_profile(request, cid):
 
