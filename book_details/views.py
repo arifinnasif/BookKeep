@@ -155,12 +155,14 @@ class UserBookDetailsView(View):
 
 
         genre = []
+        print(type)
         for g in type:
-            if g is None:
-                g = "Not Found"
+            if g[0] is None:
+                genre.append("Not Found")
+                break
             else:
-                g = ''.join(g)
-                genre.append(g)
+                print(g)
+                genre.append(str(g[0]))
 
         # print(genre)
 

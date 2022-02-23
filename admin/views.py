@@ -315,7 +315,9 @@ class AdminBookListView(View):
             cursor.close()
 
 
-
+            print(bookType)
+            bookType = list(filter(None, bookType))
+            print(bookType)
             for i2 in bookType:
                 cursor = connection.cursor()
                 sql =   """
@@ -399,7 +401,7 @@ class AdminAuthorListView(View):
                 "authorName" : r[0],
                 "DOB" : r[1].strftime('%Y-%m-%d') if r[1] is not None else "-",
                 "DOD" : r[2].strftime('%Y-%m-%d') if r[2] is not None else "-",
-                "about" : r[3] if r[2] is not None else "-",
+                "about" : r[3] if r[3] is not None else "-",
                 "cnt_books" : r[4],
                 "authorID" : r[5],
             })
@@ -417,6 +419,7 @@ class AdminAuthorListView(View):
     @check_if_authorized_manager
     def post(self, request):
         # print(request.POST.get("post_type"))
+        print(request.POST)
         post_type = request.POST.get("post_type")
         uploaded_pic = request.FILES.get('profileImage')
 
@@ -463,6 +466,7 @@ class AdminAuthorListView(View):
         DOB = request.POST.get("DOB")
         DOD = request.POST.get("DOD")
         about = request.POST.get("about")
+        print(about)
         if post_type == "edit":
             authorID = request.POST.get("authorID")
 
@@ -482,8 +486,24 @@ class AdminAuthorListView(View):
                     WHERE
                         AUTHOR_ID = %s
                     """
+
             cursor.execute(sql, [authorName, DOB, DOD, about, authorID])
+            print(about)
             cursor.close()
+
+            # if len(DOD) == 0 or len(DOB) == 0:
+            #     cursor = connection.cursor()
+            #     sql =   """
+            #             UPDATE AUTHORS
+            #             SET
+            #                 ABOUT = %s
+            #             WHERE
+            #                 AUTHOR_ID = %s
+            #             """
+            #
+            #     cursor.execute(sql, [about, authorID])
+            #     print(about)
+            #     cursor.close()
             messages.success(request, "Successfully updated")
         elif post_type == "add":
             cursor = connection.cursor()
