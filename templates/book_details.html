@@ -50,7 +50,7 @@
         border: solid;
     }
 
-    .feedback{
+    .feedback {
         background-color: #f7f8fa;
         border: solid;
     }
@@ -93,7 +93,8 @@
                     <div class="book_image mt-3 pt-3" align="center">
                         <figure class="figure">
                             <img src="{% static 'book_cover/' %}{{i.isbn}}.jpg" class="figure-img img-fluid rounded"
-                                alt="alternative text for book image" style="width: 20rem; height: 25rem;" align="center">
+                                alt="alternative text for book image" style="width: 20rem; height: 25rem;"
+                                align="center">
                             <!-- <figcaption class="figure-caption">A caption for the above image.</figcaption> -->
                         </figure>
                     </div>
@@ -114,7 +115,7 @@
 
                         <h4 class="col-md-12 fs-3"> Genre: {{i.type}}</h4>
 
-                        <h4 class="col-md-12 fs-3">{{rating}}</h4>
+                        <h4 class="col-md-12 fs-3">Rating: {{rating}}</h4>
 
                         {% if i.quantity == 0 %}
 
@@ -143,33 +144,33 @@
                                         d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
                                 </svg>
                                 Add to Cart</button>
-                            <button class="btn btn-primary btn-lg btn btn-success my-wish-btn" type="button" data-bs-toggle="modal"
-                            data-bs-target="#addWishlistModal">
+                            <button class="btn btn-primary btn-lg btn btn-success my-wish-btn" type="button"
+                                data-bs-toggle="modal" data-bs-target="#addWishlistModal">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
                                     class="bi bi-wishlist" viewBox="0 0 16 16">
                                     <path
                                         d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
                                 </svg>
                                 Add to Wishlist</button>
-                            
-                                {% if isSubscriber %}
 
-                                {% if not isRequestable %}
+                            {% if isSubscriber %}
 
-                                <button class="btn btn-primary my-borrow-btn btn-lg btn btn-secondary" 
-                                disabled type="button">
+                            {% if not isRequestable %}
+
+                            <button class="btn btn-primary my-borrow-btn btn-lg btn btn-secondary" disabled
+                                type="button">
 
                                 {% else %}
-                                <button class="btn btn-primary my-borrow-btn btn-lg btn btn-secondary " data-bs-toggle="modal" 
-                                data-bs-target="#borrowModal" type="button">
+                                <button class="btn btn-primary my-borrow-btn btn-lg btn btn-secondary "
+                                    data-bs-toggle="modal" data-bs-target="#borrowModal" type="button">
 
-                                {% endif %}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                    class="bi bi-cart" viewBox="0 0 16 16">
-                                    <path
-                                        d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
-                                </svg>
-                                Borrow </button>
+                                    {% endif %}
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                                        class="bi bi-cart" viewBox="0 0 16 16">
+                                        <path
+                                            d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
+                                    </svg>
+                                    Borrow </button>
 
                                 {% endif %}
                         </div>
@@ -270,17 +271,16 @@
                         </div>
                         <div class="modal-body">
 
-                            <form id="borrow" method="post" class="pb-4"
-                                action="{{i.isbn}}">
+                            <form id="borrow" method="post" class="pb-4" action="{{i.isbn}}">
                                 {% csrf_token %}
 
                                 <h3>
-                                   Make the best use of your subscription. Just borrow and send back it to us later!
+                                    Make the best use of your subscription. Just borrow and send back it to us later!
                                 </h3>
 
                                 <input type="hidden" name="post_type" value="request">
                                 <input type="hidden" id="modal-borrow-isbn" name="isbn" value="my-isbn">
-                                
+
                             </form>
                         </div>
                         <div class="modal-footer">
@@ -479,7 +479,6 @@
                                 {% endif %}
                                 {% endfor %}
                                 <p>{{i.review}}</p>
-
                             </div>
                         </div>
 
