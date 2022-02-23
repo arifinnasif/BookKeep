@@ -1,6 +1,37 @@
-# BookKeep
-L-2 T-2 Database Project
+![BookKeep](https://github.com/arifinnasif/BookKeep/blob/main/static/logo.svg?raw=true)
 
+
+# BookKeep
+
+Online Book Store and more
+
+A Level-2 Term-2 Database Project by [Md Asif Haider (1805112)](https://github.com/asifhaider) and [Md Sultanul Arifin (1805097)](https://github.com/arifinnasif)
+
+under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed) Sir
+
+
+
+
+
+
+
+
+### Tools used
+
+![Oracle](https://img.shields.io/badge/Oracle-F80000?style=for-the-badge&logo=oracle&logoColor=white)
+![Docker](https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white)
+
+![Django](https://img.shields.io/badge/django-%23092E20.svg?style=for-the-badge&logo=django&logoColor=white)
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+
+![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
+![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![jQuery](https://img.shields.io/badge/jquery-%230769AD.svg?style=for-the-badge&logo=jquery&logoColor=white)
+
+
+[![HitCount](http://hits.dwyl.com/arifinnasif/BookKeep.svg)](http://hits.dwyl.com/arifinnasif/BookKeep)
 ### Directory descriptions
 * **BookKeep :** base project directory
 * **admin :** admin panel app directory. contains admin access over all other features and users
@@ -37,3 +68,7 @@ L-2 T-2 Database Project
 	python manage.py runserver
 	```
 7. The `BookKeep` app will now be avaiable on `127.0.0.1:8000`
+
+
+
+Made with <span style="color: #e25555;">&#9829;</span> by the **BookKeep Team**
