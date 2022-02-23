@@ -1,4 +1,3 @@
-from tkinter.messagebox import NO
 from django.shortcuts import render, redirect, HttpResponseRedirect
 from django.db import connection
 from django.views import View
@@ -81,7 +80,7 @@ class BookInTheBorrows:
             self.startdate = entry[3].strftime('%Y-%m-%d')
         if entry[4] is not None:
             self.enddate = entry[4].strftime('%Y-%m-%d')
-        
+
 
 
 
@@ -622,10 +621,10 @@ class MyAccountView(View):
             sql = """SELECT PLAN_ID, NAME, PERIOD, BORROW_LIMIT, PRICE
                     FROM PLANS
                     WHERE PLAN_ID = %s"""
-            cursor.execute(sql, [result[0][-1]])    
+            cursor.execute(sql, [result[0][-1]])
             result_3 = cursor.fetchall()
-            cursor.close()   
-            
+            cursor.close()
+
             for r in result_3:
                 planInfo.append(PlanInfo(r))
 
@@ -634,13 +633,13 @@ class MyAccountView(View):
             #         FROM BORROWS
             #         WHERE CUSTOMER_ID = %s"""
             # cursor.execute(sql, [cid])
- 
+
         else:
             cursor = connection.cursor()
             sql = """SELECT PLAN_ID, NAME, PERIOD, BORROW_LIMIT, PRICE
                     FROM PLANS
                     """
-            cursor.execute(sql)    
+            cursor.execute(sql)
             result_3 = cursor.fetchall()
             cursor.close()
             for r in result_3:
@@ -685,7 +684,7 @@ class MyAccountView(View):
 
         return render(request, 'user_profile_account.html', context)
 
-    
+
     def post(self, request, cid):
         username = str(request.session['username'])
 
@@ -712,7 +711,7 @@ class MyAccountView(View):
                 cursor = connection.cursor()
                 sql = """INSERT INTO SUBSCRIBERS (CUSTOMER_ID, MEMBERSHIP_BOUGHT_ON, PLAN_ID)
                         VALUES(%s, %s, %s)"""
-                
+
                 cursor.execute(sql, [username, datetime.datetime.now(), id])
                 messages.info(request, 'You have successfully bought a plan!')
                 connection.commit()
@@ -725,13 +724,13 @@ class MyAccountView(View):
                 address = request.POST.get('fulladdress')
                 contact = request.POST.get('contact').split(',')
                 contact = [i.strip() for i in contact]
-            
-                
+
+
                 print(contact)
 
                 cursor = connection.cursor()
                 cursor.callproc('UPDATE_PERSONAL_INFO', [str(name), str(email), str(address), cid])
-                
+
                 sql = """DELETE FROM CUSTOMER_CONTACT_NUMBER
 			            WHERE CUSTOMER_ID = %s"""
                 cursor.execute(sql, [cid])
@@ -742,7 +741,7 @@ class MyAccountView(View):
                         (CUSTOMER_ID, CONTACT_NUMBER) VALUES (%s, %s)"""
                         cursor.execute(sql, [cid, str(c)])
 
-                cursor.close()        
+                cursor.close()
                 messages.info(request, 'Your account information has been updated!')
 
             except ValueError:
@@ -769,8 +768,8 @@ class MyBorrowsView (View):
         usertype = request.session.get('usertype', default='guest')
 
         cursor = connection.cursor()
-        sql = """SELECT ISBN, B.NAME, A.NAME, BR.START_DATE, BR.END_DATE 
-                FROM BORROWS BR 
+        sql = """SELECT ISBN, B.NAME, A.NAME, BR.START_DATE, BR.END_DATE
+                FROM BORROWS BR
                 LEFT OUTER JOIN BORROWABLE_ITEMS BRIT USING(BORROWABLE_ITEM_ID)
                 LEFT OUTER JOIN BOOKS B USING (ISBN)
                 LEFT OUTER JOIN WRITES W USING (ISBN)
@@ -782,8 +781,8 @@ class MyBorrowsView (View):
 
 
         cursor = connection.cursor()
-        sql = """SELECT ISBN, B.NAME, A.NAME 
-                FROM REQUESTS R 
+        sql = """SELECT ISBN, B.NAME, A.NAME
+                FROM REQUESTS R
                 LEFT OUTER JOIN BOOKS B USING (ISBN)
                 LEFT OUTER JOIN WRITES W USING (ISBN)
                 LEFT OUTER JOIN AUTHORS A USING (AUTHOR_ID)
@@ -819,4 +818,3 @@ class MyBorrowsView (View):
         }
 
         return render(request, 'user_profile_borrows.html', context)
-
