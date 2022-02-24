@@ -5,7 +5,7 @@
 
 Online Book Store and more
 
-A Level-2 Term-2 Database Project by [Md Asif Haider (1805112)](https://github.com/asifhaider) and [Md Sultanul Arifin (1805097)](https://github.com/arifinnasif)
+A Level-2 Term-2 Database Project by [Md. Asif Haider (1805112)](https://github.com/asifhaider) and [Md Sultanul Arifin (1805097)](https://github.com/arifinnasif)
 
 under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed) Sir
 
