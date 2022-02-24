@@ -46,14 +46,14 @@ under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed) S
 
 ### Things to do after cloning the repo -
 1. Setup python virtual environment
-2. Run
-    ```
-    python manage.py collectstatic
-    ```
-3. Install dependencies
+2. Install dependencies
 	```
 	python -m pip3 install -r requirements.txt
 	```
+3. Run
+    ```
+    python manage.py collectstatic
+    ```
 4. If oracle is not locally installed. Download oracle instant client and run
 	```
 	export LD_LIBRARY_PATH=/path/to/instantclient_directory/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
