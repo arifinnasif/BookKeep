@@ -3,16 +3,11 @@
 
 # BookKeep
 
-Online Book Store and more
+An **Online Book Store** inspired by [Rokomari](https://www.rokomari.com/book), with some extra features!
 
-A Level-2 Term-2 Database Project by [Md. Asif Haider (1805112)](https://github.com/asifhaider) and [Md Sultanul Arifin (1805097)](https://github.com/arifinnasif)
+Made for Level-2 Term-2 Database Sessional Project created by [Md. Asif Haider (1805112)](https://github.com/asifhaider) and [Md Sultanul Arifin (1805097)](https://github.com/arifinnasif)
 
-under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed) Sir
-
-
-
-
-
+Under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed), Lecturer, CSE, BUET
 
 
 
@@ -32,12 +27,13 @@ under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed) S
 
 
 [![HitCount](http://hits.dwyl.com/arifinnasif/BookKeep.svg)](http://hits.dwyl.com/arifinnasif/BookKeep)
+
 ### Directory descriptions
 * **BookKeep :** base project directory
 * **admin :** admin panel app directory. contains admin access over all other features and users
-* **catalog :** the home app directory. responsible for showing all the books short intro as card layout. may be used as search result also
+* **catalog :** the home app directory. responsible for showing all the books short intro as card layout. can be used as search result also
 * **book_details :** the details information about each book, its author, publisher and many other attributes. also contains rating, review features
-* **user_profile :** client side app directory. contains user account info, cart, wishlist and order info
+* **user_profile :** client side app directory. contains user account info, cart, wishlist, orders and borrows info
 * **doc :** contains basic project info, like, project proposal, ERD etc
 * **login :** this app handles user login and session managements
 * **sql :** contains sql commands that are required every now and then
@@ -68,7 +64,6 @@ under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed) S
 	python manage.py runserver
 	```
 7. The `BookKeep` app will now be avaiable on `127.0.0.1:8000`
-
 
 
 Made with <span style="color: #e25555;">&#9829;</span> by the **BookKeep Team**
