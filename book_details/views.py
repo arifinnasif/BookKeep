@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.views import View
 import datetime
 from django.http import HttpResponseRedirect
+from custom_utils import check_if_authorized_customer
 
 # Create your views here.
 
@@ -297,6 +298,7 @@ class UserBookDetailsView(View):
 
 
 
+    @check_if_authorized_customer
     def post(self, request, isbn):
 
         username = str(request.session['username'])
