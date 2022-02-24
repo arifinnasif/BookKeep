@@ -36,20 +36,20 @@ Under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed), 
 * **user_profile :** client side app directory. contains user account info, cart, wishlist, orders and borrows info
 * **doc :** contains basic project info, like, project proposal, ERD etc
 * **login :** this app handles user login and session managements
-* **sql :** contains sql commands that are required every now and then
+* **sql :** contains sql commands required every now and then. also contains the database structure and data dumps.
 * **templates :** used for containing `html` template files
 * **custome_utils :** intended to be a package that contain the elements needed in the entire django project irrespective of apps
 
 ### Things to do after cloning the repo -
 1. Setup python virtual environment
-2. Run
-    ```
-    python manage.py collectstatic
-    ```
-3. Install dependencies
+2. Install dependencies
 	```
 	python -m pip3 install -r requirements.txt
 	```
+3. Run
+    ```
+    python manage.py collectstatic
+    ```
 4. If oracle is not locally installed. Download oracle instant client and run
 	```
 	export LD_LIBRARY_PATH=/path/to/instantclient_directory/${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}
