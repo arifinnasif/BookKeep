@@ -1,4 +1,4 @@
-![BookKeep](https://github.com/arifinnasif/BookKeep/blob/main/static/logo.svg?raw=true)
+![BookKeep](https://github.com/arifinnasif/BookKeep/blob/main/static/logo.png?raw=true)
 
 
 # BookKeep
