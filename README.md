@@ -36,7 +36,7 @@ Under the kind supervision of [Rayhan Rashed](https://github.com/rayhanrashed), 
 * **user_profile :** client side app directory. contains user account info, cart, wishlist, orders and borrows info
 * **doc :** contains basic project info, like, project proposal, ERD etc
 * **login :** this app handles user login and session managements
-* **sql :** contains sql commands that are required every now and then
+* **sql :** contains sql commands required every now and then. also contains the database structure and data dumps.
 * **templates :** used for containing `html` template files
 * **custome_utils :** intended to be a package that contain the elements needed in the entire django project irrespective of apps
 
