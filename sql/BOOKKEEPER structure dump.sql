@@ -11,7 +11,7 @@
  Target Server Version : 190000
  File Encoding         : 65001
 
- Date: 24/02/2022 19:29:34
+ Date: 26/02/2022 21:47:21
 */
 
 
@@ -1878,6 +1878,16 @@ ALTER TABLE "BOOKKEEPER"."ORDERS" ADD CONSTRAINT "SYS_C007848" CHECK ("ORDER_ID"
 -- Primary Key structure for table ORDER_BOOK
 -- ----------------------------
 ALTER TABLE "BOOKKEEPER"."ORDER_BOOK" ADD CONSTRAINT "SYS_C007850" PRIMARY KEY ("ORDER_ID", "ISBN");
+
+-- ----------------------------
+-- Triggers structure for table ORDER_BOOK
+-- ----------------------------
+CREATE TRIGGER "BOOKKEEPER"."UPDATE_BOOK_QUANTITY_ON_CANCEL_ORDER" AFTER DELETE ON "BOOKKEEPER"."ORDER_BOOK" REFERENCING OLD AS "OLD" NEW AS "NEW" FOR EACH ROW 
+DECLARE
+ BEGIN
+	UPDATE BOOKS B SET B.QUANTITY = B.QUANTITY + :OLD.QUANTITY WHERE B.ISBN = :OLD.ISBN;
+ END;
+/
 
 -- ----------------------------
 -- Primary Key structure for table PLANS
